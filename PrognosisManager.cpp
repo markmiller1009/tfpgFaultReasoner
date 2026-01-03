@@ -75,7 +75,7 @@ double PrognosisManager::calculatePlausibility(const std::string& hypothesisId,
 // TTC is the shortest time from the current state to the activation of a node
 // that meets or exceeds the specified criticality threshold.
 // This is implemented using Dijkstra's algorithm.
-double PrognosisManager::calculateTTC(const std::unordered_map<std::string, NodeState>& nodeStates, 
+PrognosisResult PrognosisManager::calculateTTC(const std::unordered_map<std::string, NodeState>& nodeStates, 
                                       int criticalityThreshold, double current_time) {
     // Min-priority queue for Dijkstra's algorithm. Stores pairs of {accumulated_time, node_id}.
     using P = std::pair<double, std::string>;
@@ -108,7 +108,7 @@ double PrognosisManager::calculateTTC(const std::unordered_map<std::string, Node
             // if (ttc < 0) std::cout << " (Overdue)";
             // std::cout << ".\n";
             // Return the time difference from now.
-            return ttc;
+            return {ttc, u};
         }
 
         // Optimization: if we found a shorter path to `u` already, skip.
@@ -138,5 +138,5 @@ double PrognosisManager::calculateTTC(const std::unordered_map<std::string, Node
     }
 
     // If the loop completes without finding a path to a critical node, return -1.
-    return std::numeric_limits<double>::infinity(); // No critical node reachable
+    return {std::numeric_limits<double>::infinity(), ""}; // No critical node reachable
 }

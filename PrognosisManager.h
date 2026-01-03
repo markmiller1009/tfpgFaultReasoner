@@ -17,6 +17,11 @@
 #include <unordered_map>
 #include <utility>
 
+struct PrognosisResult {
+    double ttc;
+    std::string critical_node_id;
+};
+
 class PrognosisManager {
 public:
     explicit PrognosisManager(const rTFPGModel& model);
@@ -34,7 +39,7 @@ public:
      * @return The minimum time (ms) from any currently active node to any node with 
      *         criticality_level >= criticalityThreshold. Returns -1.0 if unreachable.
      */
-    double calculateTTC(const std::unordered_map<std::string, NodeState>& nodeStates, 
+    PrognosisResult calculateTTC(const std::unordered_map<std::string, NodeState>& nodeStates, 
                         int criticalityThreshold, double current_time);
 
 private:

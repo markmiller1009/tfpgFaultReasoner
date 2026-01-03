@@ -19,15 +19,19 @@ LogicEngine::LogicEngine(const rTFPGModel& model, const SignalIngestor& ingestor
  * @brief REQ-ENG-03: Calculates the robustness for a single predicate.
  * @refinement Returns a positive value if the predicate is satisfied, negative if violated.
  */
-double calculateRobustness(const Predicate& predicate, double signal_value) {
+double calculateRobustness(const Predicate& predicate, double signal_value, double range_min, double range_max) {
+    double raw_val = 0.0;
     if (predicate.op == ">") {
-        return signal_value - predicate.threshold;
-    }
-    if (predicate.op == "<") {
-        return predicate.threshold - signal_value;
+        raw_val = signal_value - predicate.threshold;
+    } else if (predicate.op == "<") {
+        raw_val = predicate.threshold - signal_value;
     }
     // Extend with other operators like ==, >=, <= as needed.
-    return 0.0; // Default for unsupported operators
+    
+    double range = range_max - range_min;
+    if (range <= 1e-9) return raw_val; // Avoid division by zero, return raw
+    
+    return raw_val / range;
 }
 
 /**
@@ -52,20 +56,25 @@ void evaluateSignalTrace(const rTFPGModel& model, const SignalIngestor& ingestor
                 if (node.type == NodeType::Discrepancy && node.predicate) {
                     // Inefficient lookup, a map would be better.
                     std::string source_name_for_predicate;
+                    double range_min = 0.0;
+                    double range_max = 1.0;
                     for (const auto& sig : model.getSignals()) {
                         if (sig.id == node.predicate->signal_ref) {
                             source_name_for_predicate = sig.source_name;
+                            range_min = sig.range_min;
+                            range_max = sig.range_max;
                             break;
                         }
                     }
 
                     if (source_name_for_predicate == sample.parameterID) {
-                        double robustness = calculateRobustness(*node.predicate, sample.value);
+                        double robustness = calculateRobustness(*node.predicate, sample.value, range_min, range_max);
                         if (robustness > 0 && !node_states[node.id].is_active) {
                             node_states[node.id].is_active = true;
                             node_states[node.id].robustness = robustness;
                             node_states[node.id].activation_time_ms = sample.timestamp_ms;
-                            std::cout << "Node " << node.id << " (" << node.name << ") activated at time " << sample.timestamp_ms << "ms.\n";
+                            std::cout << "Node " << node.id << " (" << node.name << ") activated at time " << sample.timestamp_ms << "ms";
+                            std::cout << " (" << source_name_for_predicate << ": " << sample.value << node.predicate->op << node.predicate->threshold << ").\n";
                             node_states[node.id].trigger_value = sample.value;
                             // std::cout << "Node " << node.id << " (" << node.name << ") activated at time " << sample.timestamp_ms << "ms.\n";
                         }
@@ -191,8 +200,18 @@ std::vector<DiagnosisResult> LogicEngine::findActiveHypotheses() {
         }
 
         double plausibility = expected_symptoms.empty() ? 0.0 : (double)consistent_count / expected_symptoms.size();
+        
+        // Calculate Aggregate Robustness normalized between -1.0 and 1.0
+        double aggregate_robustness = 0.0;
+        if (!expected_symptoms.empty()) {
+            double missing_count = (double)expected_symptoms.size() - consistent_count;
+            aggregate_robustness = (total_robustness - missing_count) / expected_symptoms.size();
+            // Clamp to -1.0 to 1.0
+            aggregate_robustness = std::max(-1.0, std::min(1.0, aggregate_robustness));
+        }
+
         if (plausibility > 0.0) {
-            ranked_diagnoses.push_back({node_map.at(fm_id), plausibility, total_robustness, expected_symptoms, consistent_symptoms, symptom_values});
+            ranked_diagnoses.push_back({node_map.at(fm_id), plausibility, aggregate_robustness, expected_symptoms, consistent_symptoms, symptom_values});
         }
     }
 

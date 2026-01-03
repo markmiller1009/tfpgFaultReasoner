@@ -1,0 +1,269 @@
+System Initialized. Nodes: 10
+Starting Simulation: "TEST_003_THERMAL_RUNAWAY"
+
+FAULT INJECTED: Inverter_Short_Circuit activated at time 2000ms.
+Node D1 (High_Load_Current) activated at time 2005ms (sensor_load_bank_current_amps: 22>18).
+
+==============================================================================
+[Time: 2005ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 25% | Aggregate Robustness: -0.71
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 1
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+ * Prognosis:
+   - WARNING: Time-To-Criticality (TTC) is 1000 ms (Target: D6).
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 20% | Aggregate Robustness: -0.768
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 1
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+ * Prognosis:
+   - WARNING: Time-To-Criticality (TTC) is 1000 ms (Target: D6).
+==============================================================================
+
+Node D3 (Inverter_Freq_Drift) activated at time 2050ms (sensor_inverter_freq_hz: 65>62).
+
+==============================================================================
+[Time: 2050ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 40% | Aggregate Robustness: -0.538
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 2
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+ * Prognosis:
+   - WARNING: Time-To-Criticality (TTC) is 955 ms (Target: D6).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 25% | Aggregate Robustness: -0.71
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 1
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+ * Prognosis:
+   - WARNING: Time-To-Criticality (TTC) is 955 ms (Target: D6).
+==============================================================================
+
+Node D2 (Bus_Voltage_Sag) activated at time 2150ms (sensor_bus_voltage_v: 22<24).
+
+==============================================================================
+[Time: 2150ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 60% | Aggregate Robustness: -0.326571
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 3
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+ * Prognosis:
+   - WARNING: Time-To-Criticality (TTC) is 855 ms (Target: D6).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.445714
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 2
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+ * Prognosis:
+   - WARNING: Time-To-Criticality (TTC) is 855 ms (Target: D6).
+==============================================================================
+
+FAULT INJECTED: Battery_Cooling_Fail activated at time 5000ms.
+
+==============================================================================
+[Time: 5000ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 60% | Aggregate Robustness: -0.326571
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 3
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 1995 ms (Latent Risk).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.445714
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 2
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 1995 ms (Latent Risk).
+==============================================================================
+
+Node D4 (Battery_Warm) activated at time 12000ms (sensor_battery_temp_c: 48>45).
+
+==============================================================================
+[Time: 12000ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 60% | Aggregate Robustness: -0.326571
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 3
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 8995 ms (Latent Risk).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.445714
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 2
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 8995 ms (Latent Risk).
+
+Hypothesis: FM2 (Battery_Cooling_Fail)
+------------------------------------------------------------------------------
+ * Plausibility: 25% | Aggregate Robustness: -0.744643
+ * Expected Discrepancies: 4 (D4 [CL:2], D5 [CL:8], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 1
+   - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 8995 ms (Latent Risk).
+==============================================================================
+
+
+==============================================================================
+[Time: 13000ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 60% | Aggregate Robustness: -0.326571
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 3
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 9995 ms (Latent Risk).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.445714
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 2
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 9995 ms (Latent Risk).
+
+Hypothesis: FM2 (Battery_Cooling_Fail)
+------------------------------------------------------------------------------
+ * Plausibility: 25% | Aggregate Robustness: -0.744643
+ * Expected Discrepancies: 4 (D4 [CL:2], D5 [CL:8], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 1
+   - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+ * Prognosis:
+   - STATUS: Critical propagation stalled. Prediction for D6 overdue by 9995 ms (Latent Risk).
+==============================================================================
+
+Node D6 (Thermal_Runaway_Risk) activated at time 14500ms (sensor_battery_temp_c: 65>60).
+
+==============================================================================
+[Time: 14500ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 80% | Aggregate Robustness: -0.119429
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 4
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+   - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D6).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 75% | Aggregate Robustness: -0.186786
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 3
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D6).
+
+Hypothesis: FM2 (Battery_Cooling_Fail)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.485714
+ * Expected Discrepancies: 4 (D4 [CL:2], D5 [CL:8], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 2
+   - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+   - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D6).
+==============================================================================
+
+Node D7 (System_Collapse) activated at time 16000ms (sensor_bus_voltage_v: 5<10).
+
+==============================================================================
+[Time: 16000ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM1 (Inverter_Short_Circuit)
+------------------------------------------------------------------------------
+ * Plausibility: 100% | Aggregate Robustness: 0.109143
+ * Expected Discrepancies: 5 (D1 [CL:3], D2 [CL:4], D3 [CL:2], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 5
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+   - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+   - D7: Activated at t=16000ms (sensor_bus_voltage_v: 5<10).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D6).
+
+Hypothesis: FM3 (Load_Sensor_Bias)
+------------------------------------------------------------------------------
+ * Plausibility: 100% | Aggregate Robustness: 0.0989286
+ * Expected Discrepancies: 4 (D1 [CL:3], D2 [CL:4], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 4
+   - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+   - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+   - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+   - D7: Activated at t=16000ms (sensor_bus_voltage_v: 5<10).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D6).
+
+Hypothesis: FM2 (Battery_Cooling_Fail)
+------------------------------------------------------------------------------
+ * Plausibility: 75% | Aggregate Robustness: -0.2
+ * Expected Discrepancies: 4 (D4 [CL:2], D5 [CL:8], D6 [CL:9], D7 [CL:10])
+ * Observed Discrepancies: 3
+   - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+   - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+   - D7: Activated at t=16000ms (sensor_bus_voltage_v: 5<10).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D6).
+==============================================================================
+
+
+Simulation Complete.

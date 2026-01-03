@@ -20,8 +20,8 @@ using json = nlohmann::json;
 
 int main(int argc, char* argv[]) {
 
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <fault_model.json> <test_data.json>" << std::endl;
+    if (argc < 3 || argc > 4) {
+        std::cerr << "Usage: " << argv[0] << " <fault_model.json> <test_data.json> [criticality_threshold]" << std::endl;
         return 1;
     }
 
@@ -101,7 +101,17 @@ int main(int argc, char* argv[]) {
     // ---------------------------------------------------------
     // Define a criticality threshold for prognosis. Any node with a criticality level
     // greater than or equal to this value is considered a critical failure.
-    const int CRITICALITY_THRESHOLD = 5; 
+    int criticality_threshold = 5; // Default value
+    if (argc == 4) {
+        try {
+            criticality_threshold = std::stoi(argv[3]);
+        } catch (const std::exception& e) {
+            std::cerr << "Error: Invalid criticality threshold '" << argv[3] << "'. Must be an integer. " << e.what() << std::endl;
+            return 1;
+        }
+    }
+
+    std::cout << "\nUsing Criticality Threshold: " << criticality_threshold << std::endl;
 
     // Iterate through each event in the "data_stream" array of the test data.
     for (const auto& event : testData["data_stream"]) {
@@ -153,6 +163,9 @@ int main(int argc, char* argv[]) {
                 for (const auto& id : diag.expected_symptoms) {
                     if (!first) { std::cout << ", "; }
                     std::cout << id;
+                    if (node_lookup.count(id)) {
+                        std::cout << " [CL:" << node_lookup.at(id).criticality_level << "]";
+                    }
                     first = false;
                 }
                 std::cout << ")\n";
@@ -176,18 +189,29 @@ int main(int argc, char* argv[]) {
                 // E. Run Prognosis (REQ-PROG-02/03)
                 // Calculate the Time-To-Criticality (TTC), which is the estimated time remaining
                 // until a critical failure occurs.
-                const double ttc = prognosis.calculateTTC(nodeStates, CRITICALITY_THRESHOLD, sample.timestamp_ms);
+                const auto prognosis_result = prognosis.calculateTTC(nodeStates, criticality_threshold, sample.timestamp_ms);
+                const double ttc = prognosis_result.ttc;
+                const std::string& target_id = prognosis_result.critical_node_id;
                 
                 std::cout << " * Prognosis:\n";
                 if (ttc == std::numeric_limits<double>::infinity()) {
                      std::cout << "   - System appears stable; no critical failure path detected from this state.\n";
-                } else if (ttc > 0) {
-                     std::cout << "   - WARNING: Time-To-Criticality (TTC) is " << ttc << " ms.\n";
-                } else if (ttc == 0) {
-                     std::cout << "   - CRITICAL: A critical failure condition has been reached.\n";
                 } else {
-                     std::cout << "   - STATUS: Critical propagation stalled. Prediction overdue by " 
-                               << std::abs(ttc) << " ms (Latent Risk).\n";
+                    bool is_target_active = false;
+                    if (!target_id.empty() && nodeStates.count(target_id)) {
+                        is_target_active = nodeStates.at(target_id).is_active;
+                    }
+
+                    if (is_target_active) {
+                        std::cout << "   - CRITICAL FAILURE ACTIVE (Target: " << target_id << ").\n";
+                    } else if (ttc > 0) {
+                        std::cout << "   - WARNING: Time-To-Criticality (TTC) is " << ttc << " ms (Target: " << target_id << ").\n";
+                    } else if (ttc == 0) {
+                        std::cout << "   - CRITICAL: A critical failure condition has been reached (Target: " << target_id << ").\n";
+                    } else {
+                        std::cout << "   - STATUS: Critical propagation stalled. Prediction for " << target_id << " overdue by " 
+                                  << std::abs(ttc) << " ms (Latent Risk).\n";
+                    }
                 }
             }
             std::cout << "==============================================================================\n" << std::endl;
