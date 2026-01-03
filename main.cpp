@@ -5,6 +5,7 @@
 #include <limits>
 #include <cmath>
 #include <map>
+#include <set>
 
 // This code assumes you have the nlohmann/json library available.
 // If using a package manager like vcpkg: vcpkg install nlohmann-json
@@ -20,9 +21,46 @@ using json = nlohmann::json;
 
 int main(int argc, char* argv[]) {
 
-    if (argc < 3 || argc > 4) {
-        std::cerr << "Usage: " << argv[0] << " <fault_model.json> <test_data.json> [criticality_threshold]" << std::endl;
+    if (argc < 3 || argc > 5) {
+        std::cerr << "Usage: " << argv[0] << " <fault_model.json> <test_data.json> [criticality_threshold] [output_log_file]" << std::endl;
         return 1;
+    }
+
+    int criticality_threshold = 5; // Default value
+    std::string output_log_file = "";
+
+    // Parse optional arguments
+    if (argc >= 4) {
+        try {
+            size_t pos;
+            criticality_threshold = std::stoi(argv[3], &pos);
+            if (pos != std::string(argv[3]).length()) throw std::invalid_argument("Not an integer");
+            
+            if (argc == 5) {
+                output_log_file = argv[4];
+            }
+        } catch (...) {
+            // argv[3] is not an integer, assume it's the output file
+            if (argc == 5) {
+                std::cerr << "Error: Invalid criticality threshold '" << argv[3] << "'. Must be an integer if output file is also provided." << std::endl;
+                return 1;
+            }
+            output_log_file = argv[3];
+        }
+    }
+
+    std::ofstream logFile;
+    std::streambuf* cout_backup = nullptr;
+    if (!output_log_file.empty()) {
+        logFile.open(output_log_file);
+        if (!logFile.is_open()) {
+            std::cerr << "Error: Could not open log file: " << output_log_file << std::endl;
+            return 1;
+        }
+        logFile << "Fault Model: " << argv[1] << "\nTest Data: " << argv[2] << "\n";
+        logFile << "--------------------------------------------------\n";
+        cout_backup = std::cout.rdbuf();
+        std::cout.rdbuf(logFile.rdbuf());
     }
 
     // ---------------------------------------------------------
@@ -101,17 +139,12 @@ int main(int argc, char* argv[]) {
     // ---------------------------------------------------------
     // Define a criticality threshold for prognosis. Any node with a criticality level
     // greater than or equal to this value is considered a critical failure.
-    int criticality_threshold = 5; // Default value
-    if (argc == 4) {
-        try {
-            criticality_threshold = std::stoi(argv[3]);
-        } catch (const std::exception& e) {
-            std::cerr << "Error: Invalid criticality threshold '" << argv[3] << "'. Must be an integer. " << e.what() << std::endl;
-            return 1;
-        }
-    }
 
     std::cout << "\nUsing Criticality Threshold: " << criticality_threshold << std::endl;
+
+    std::set<std::string> last_active_symptoms;
+    std::map<std::string, double> last_robustness_scores;
+    double last_ttc = std::numeric_limits<double>::infinity();
 
     // Iterate through each event in the "data_stream" array of the test data.
     for (const auto& event : testData["data_stream"]) {
@@ -141,16 +174,55 @@ int main(int argc, char* argv[]) {
         // C. Run Diagnosis (REQ-ENG-04)
         // The Logic Engine processes the accumulated signal history to find any active failure hypotheses.
         auto diagnoses = engine.findActiveHypotheses();
+        const auto& nodeStates = engine.getNodeStates();
+
+        // 1. Check for changes in active symptoms
+        std::set<std::string> current_active_symptoms;
+        for (const auto& [id, state] : nodeStates) {
+            if (state.is_active && node_lookup.count(id) && node_lookup.at(id).type == NodeType::Discrepancy) {
+                current_active_symptoms.insert(id);
+            }
+        }
+        bool symptoms_changed = (current_active_symptoms != last_active_symptoms);
+        last_active_symptoms = current_active_symptoms;
+
+        // 2. Check for changes in robustness scores
+        bool robustness_changed = false;
+        std::map<std::string, double> current_robustness_scores;
+        for (const auto& diag : diagnoses) {
+            current_robustness_scores[diag.node.id] = diag.robustness;
+            if (last_robustness_scores.find(diag.node.id) == last_robustness_scores.end() ||
+                std::abs(last_robustness_scores[diag.node.id] - diag.robustness) > 1e-6) {
+                robustness_changed = true;
+            }
+        }
+        if (last_robustness_scores.size() != current_robustness_scores.size()) {
+            robustness_changed = true;
+        }
+        if (robustness_changed && !diagnoses.empty()) {
+            std::cout << "Robustness metrics updated based on new evidence.\n";
+        }
+        last_robustness_scores = current_robustness_scores;
+
+        // E. Run Prognosis (REQ-PROG-02/03)
+        // Calculate the Time-To-Criticality (TTC) *before* deciding to print, as it's a trigger.
+        const auto prognosis_result = prognosis.calculateTTC(nodeStates, criticality_threshold, sample.timestamp_ms);
+        const double ttc = prognosis_result.ttc;
+        const std::string& target_id = prognosis_result.critical_node_id;
+
+        // 3. Check for TTC expiration (TTC reaches 0)
+        bool ttc_expired = (ttc <= 0 && last_ttc > 0);
+        if (ttc_expired && !diagnoses.empty()) {
+            std::cout << "CRITICAL PROGNOSIS UPDATE: Discrepancy " << target_id << " is now OVERDUE.\n";
+        }
+        last_ttc = ttc;
 
         // D. Output Diagnosis Results
         // If any failure modes are identified as active hypotheses, output the results.
-        if (!diagnoses.empty()) {
+        if (!diagnoses.empty() && (symptoms_changed || robustness_changed || ttc_expired)) {
             std::cout << "\n==============================================================================\n";
             std::cout << "[Time: " << sample.timestamp_ms << "ms] DIAGNOSTIC REPORT\n";
             std::cout << "==============================================================================\n";
-
-            // Retrieve the full state map (active/inactive nodes, robustness, etc.) for prognosis.
-            const auto& nodeStates = engine.getNodeStates();
 
             // Iterate through each identified fault and run prognosis.
             for (const auto& diag : diagnoses) {
@@ -186,12 +258,6 @@ int main(int argc, char* argv[]) {
                     std::cout << ".\n";
                 }
 
-                // E. Run Prognosis (REQ-PROG-02/03)
-                // Calculate the Time-To-Criticality (TTC), which is the estimated time remaining
-                // until a critical failure occurs.
-                const auto prognosis_result = prognosis.calculateTTC(nodeStates, criticality_threshold, sample.timestamp_ms);
-                const double ttc = prognosis_result.ttc;
-                const std::string& target_id = prognosis_result.critical_node_id;
                 
                 std::cout << " * Prognosis:\n";
                 if (ttc == std::numeric_limits<double>::infinity()) {
@@ -219,5 +285,9 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "\nSimulation Complete." << std::endl;
+
+    if (cout_backup) {
+        std::cout.rdbuf(cout_backup);
+    }
     return 0;
 }
