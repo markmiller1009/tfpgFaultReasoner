@@ -1,0 +1,130 @@
+{
+  "model_name": "Pump_Valve_rTFPG",
+  "version": "1.1",
+  "description": "Updated rTFPG model with signal ranges for robustness normalization and complete criticality levels for prognosis.",
+  "signals": [
+    {
+      "id": "S1",
+      "source_name": "sensor_flow_rate_gpm",
+      "type": "Continuous",
+      "units": "GPM",
+      "range_min": 0.0,
+      "range_max": 20.0
+    },
+    {
+      "id": "S2",
+      "source_name": "sensor_outlet_pressure_psi",
+      "type": "Continuous",
+      "units": "PSI",
+      "range_min": 0.0,
+      "range_max": 200.0
+    },
+    {
+      "id": "S3",
+      "source_name": "sensor_motor_current_amps",
+      "type": "Continuous",
+      "units": "Amps",
+      "range_min": 0.0,
+      "range_max": 10.0
+    }
+  ],
+  "nodes": [
+    {
+      "id": "FM1",
+      "name": "Pump_Motor_Burnout",
+      "type": "FailureMode",
+      "description": "Electrical failure of the pump motor."
+    },
+    {
+      "id": "FM2",
+      "name": "Valve_Stuck_Closed",
+      "type": "FailureMode",
+      "description": "Mechanical blockage of the outlet valve."
+    },
+    {
+      "id": "D1",
+      "name": "Low_Current",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S3",
+        "operator": "<",
+        "threshold": 0.5
+      },
+      "criticality_level": 4
+    },
+    {
+      "id": "D2",
+      "name": "Low_Pressure",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S2",
+        "operator": "<",
+        "threshold": 10.0
+      },
+      "criticality_level": 3
+    },
+    {
+      "id": "D3",
+      "name": "High_Pressure",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S2",
+        "operator": ">",
+        "threshold": 100.0
+      },
+      "criticality_level": 4
+    },
+    {
+      "id": "D4",
+      "name": "No_Flow",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S1",
+        "operator": "<",
+        "threshold": 1.0
+      },
+      "criticality_level": 6
+    }
+  ],
+  "edges": [
+    {
+      "from": "FM1",
+      "to": "D1",
+      "time_min_ms": 0,
+      "time_max_ms": 20,
+      "description": "Current drops almost instantly upon burnout."
+    },
+    {
+      "from": "FM1",
+      "to": "D2",
+      "time_min_ms": 100,
+      "time_max_ms": 500,
+      "description": "Pressure decays after pump stops."
+    },
+    {
+      "from": "D2",
+      "to": "D4",
+      "time_min_ms": 500,
+      "time_max_ms": 2000,
+      "description": "Flow momentum dissipates after pressure loss."
+    },
+    {
+      "from": "FM2",
+      "to": "D3",
+      "time_min_ms": 50,
+      "time_max_ms": 300,
+      "description": "Immediate pressure spike (deadhead) when valve sticks."
+    },
+    {
+      "from": "D3",
+      "to": "D4",
+      "time_min_ms": 200,
+      "time_max_ms": 1000,
+      "description": "Flow stops as pressure relief triggers or blockage completes."
+    }
+  ]
+}

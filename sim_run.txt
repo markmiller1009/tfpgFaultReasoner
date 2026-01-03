@@ -1,0 +1,295 @@
+System Initialized. Nodes: 10
+Starting Simulation: "TEST_003_THERMAL_RUNAWAY"
+
+
+--- Active Hypotheses (Ranked) ---
+
+--- Active Hypotheses (Ranked) ---
+
+--- Active Hypotheses (Ranked) ---
+
+--- Active Hypotheses (Ranked) ---
+FAULT INJECTED: Inverter_Short_Circuit activated at time 2000ms.
+
+--- Active Hypotheses (Ranked) ---
+Node D1 (High_Load_Current) activated at time 2005ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 25% | Robustness: 0.16
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - Total Active: 1 Nodes.
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 20% | Robustness: 0.16
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - Total Active: 1 Nodes.
+[Time: 2005ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: 1000ms.
+     WARNING: Critical Failure expected in 1000 ms.
+     Hypothesis Plausibility: 25%
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: 1000ms.
+     WARNING: Critical Failure expected in 1000 ms.
+     Hypothesis Plausibility: 20%
+Node D3 (Inverter_Freq_Drift) activated at time 2050ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 40% | Robustness: 0.31
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - Total Active: 2 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 25% | Robustness: 0.16
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - Total Active: 1 Nodes.
+[Time: 2050ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: 955ms.
+     WARNING: Critical Failure expected in 955 ms.
+     Hypothesis Plausibility: 40%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: 955ms.
+     WARNING: Critical Failure expected in 955 ms.
+     Hypothesis Plausibility: 25%
+Node D2 (Bus_Voltage_Sag) activated at time 2150ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 60% | Robustness: 0.367143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - Total Active: 3 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 50% | Robustness: 0.217143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - Total Active: 2 Nodes.
+[Time: 2150ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: 855ms.
+     WARNING: Critical Failure expected in 855 ms.
+     Hypothesis Plausibility: 60%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: 855ms.
+     WARNING: Critical Failure expected in 855 ms.
+     Hypothesis Plausibility: 50%
+FAULT INJECTED: Battery_Cooling_Fail activated at time 5000ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 60% | Robustness: 0.367143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - Total Active: 3 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 50% | Robustness: 0.217143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - Total Active: 2 Nodes.
+[Time: 5000ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -1995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 60%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -1995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 50%
+Node D4 (Battery_Warm) activated at time 12000ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 60% | Robustness: 0.367143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - Total Active: 3 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 50% | Robustness: 0.217143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - Total Active: 2 Nodes.
+Hypothesis: FM2 (Battery_Cooling_Fail)
+  Plausibility: 25% | Robustness: 0.0214286
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D4, D5, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+      - Total Active: 1 Nodes.
+[Time: 12000ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -8995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 60%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -8995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 50%
+  >> Active Failure Mode: Battery_Cooling_Fail
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -8995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 25%
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 60% | Robustness: 0.367143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - Total Active: 3 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 50% | Robustness: 0.217143
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - Total Active: 2 Nodes.
+Hypothesis: FM2 (Battery_Cooling_Fail)
+  Plausibility: 25% | Robustness: 0.0214286
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D4, D5, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+      - Total Active: 1 Nodes.
+[Time: 13000ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -9995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 60%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -9995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 50%
+  >> Active Failure Mode: Battery_Cooling_Fail
+[Prognosis] Critical node D6 (Level 9) predicted at 3005ms. TTC: -9995ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 25%
+Node D6 (Thermal_Runaway_Risk) activated at time 14500ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 80% | Robustness: 0.402857
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+      - Total Active: 4 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 75% | Robustness: 0.252857
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+      - Total Active: 3 Nodes.
+Hypothesis: FM2 (Battery_Cooling_Fail)
+  Plausibility: 50% | Robustness: 0.0571429
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D4, D5, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+      - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+      - Total Active: 2 Nodes.
+[Time: 14500ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 14500ms. TTC: 0ms.
+     CRITICALITY REACHED.
+     Hypothesis Plausibility: 80%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 14500ms. TTC: 0ms.
+     CRITICALITY REACHED.
+     Hypothesis Plausibility: 75%
+  >> Active Failure Mode: Battery_Cooling_Fail
+[Prognosis] Critical node D6 (Level 9) predicted at 14500ms. TTC: 0ms.
+     CRITICALITY REACHED.
+     Hypothesis Plausibility: 50%
+Node D7 (System_Collapse) activated at time 16000ms.
+
+--- Active Hypotheses (Ranked) ---
+Hypothesis: FM1 (Inverter_Short_Circuit)
+  Plausibility: 100% | Robustness: 0.545714
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 5 Nodes (D1, D2, D3, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D3: Activated at t=2050ms (sensor_inverter_freq_hz: 65>62).
+      - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+      - D7: Activated at t=16000ms (sensor_bus_voltage_v: 5<10).
+      - Total Active: 5 Nodes.
+Hypothesis: FM3 (Load_Sensor_Bias)
+  Plausibility: 100% | Robustness: 0.395714
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D1, D2, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D1: Activated at t=2005ms (sensor_load_bank_current_amps: 22>18).
+      - D2: Activated at t=2150ms (sensor_bus_voltage_v: 22<24).
+      - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+      - D7: Activated at t=16000ms (sensor_bus_voltage_v: 5<10).
+      - Total Active: 4 Nodes.
+Hypothesis: FM2 (Battery_Cooling_Fail)
+  Plausibility: 75% | Robustness: 0.2
+  * Expected Discrepancies (Reachable Set):
+      - Total Expected: 4 Nodes (D4, D5, D6, D7).
+  * Active Consistent Discrepancies (Observed):
+      - D4: Activated at t=12000ms (sensor_battery_temp_c: 48>45).
+      - D6: Activated at t=14500ms (sensor_battery_temp_c: 65>60).
+      - D7: Activated at t=16000ms (sensor_bus_voltage_v: 5<10).
+      - Total Active: 3 Nodes.
+[Time: 16000ms] DIAGNOSIS TRIGGERED:
+  >> Active Failure Mode: Inverter_Short_Circuit
+[Prognosis] Critical node D6 (Level 9) predicted at 14500ms. TTC: -1500ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 100%
+  >> Active Failure Mode: Load_Sensor_Bias
+[Prognosis] Critical node D6 (Level 9) predicted at 14500ms. TTC: -1500ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 100%
+  >> Active Failure Mode: Battery_Cooling_Fail
+[Prognosis] Critical node D6 (Level 9) predicted at 14500ms. TTC: -1500ms.
+     System stable relative to Criticality Level 5.
+     Hypothesis Plausibility: 75%
+
+Simulation Complete.

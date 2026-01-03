@@ -1,0 +1,119 @@
+{
+  "scenario_id": "TEST_003_THERMAL_RUNAWAY",
+  "description": "Complex cascading failure. FM1 (Inverter Short) causes internal heating (D1). Later, FM2 (Cooling Fail) prevents heat dissipation (D4). The combination triggers the AND-gate D6 (Thermal Runaway), leading to System Collapse (D7).",
+  "start_time_ms": 0,
+  "data_stream": [
+    {
+      "comment": "--- PHASE 1: NOMINAL OPERATION ---"
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_load_bank_current_amps",
+      "value": 12.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_bus_voltage_v",
+      "value": 28.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_inverter_freq_hz",
+      "value": 60.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_battery_temp_c",
+      "value": 25.0,
+      "is_failure_mode": false
+    },
+    {
+      "comment": "--- PHASE 2: INJECTION OF FAULT 1 (Inverter Short) ---"
+    },
+    {
+      "timestamp_ms": 2000,
+      "parameter_id": "Inverter_Short_Circuit",
+      "value": 1.0,
+      "is_failure_mode": true,
+      "note": "Root Cause 1: Electrical short occurs."
+    },
+    {
+      "comment": "--- PHASE 3: FM1 SYMPTOMS (Fast Response) ---",
+      "expected_nodes": ["D1", "D3"]
+    },
+    {
+      "timestamp_ms": 2005,
+      "parameter_id": "sensor_load_bank_current_amps",
+      "value": 22.0,
+      "is_failure_mode": false,
+      "note": "Current spikes > 18.0 (D1 Active). Robustness: (22-18)/25 = 0.16."
+    },
+    {
+      "timestamp_ms": 2050,
+      "parameter_id": "sensor_inverter_freq_hz",
+      "value": 65.0,
+      "is_failure_mode": false,
+      "note": "Freq drifts > 62.0 (D3 Active). Valid delay from FM1 (50ms)."
+    },
+    {
+      "timestamp_ms": 2150,
+      "parameter_id": "sensor_bus_voltage_v",
+      "value": 22.0,
+      "is_failure_mode": false,
+      "note": "Voltage sags < 24.0 (D2 Active). Valid delay from D1 (145ms)."
+    },
+    {
+      "comment": "--- PHASE 4: INJECTION OF FAULT 2 (Cooling Fail) ---"
+    },
+    {
+      "timestamp_ms": 5000,
+      "parameter_id": "Battery_Cooling_Fail",
+      "value": 1.0,
+      "is_failure_mode": true,
+      "note": "Root Cause 2: Active cooling stops. Temp will rise slowly."
+    },
+    {
+      "comment": "--- PHASE 5: FM2 SYMPTOM (Battery Warm) ---",
+      "expected_nodes": ["D4"]
+    },
+    {
+      "timestamp_ms": 12000,
+      "parameter_id": "sensor_battery_temp_c",
+      "value": 48.0,
+      "is_failure_mode": false,
+      "note": "Temp > 45.0 (D4 Active). Delay from FM2 is 7000ms (Valid: 5000-15000ms)."
+    },
+    {
+      "comment": "--- PHASE 6: AND-GATE LOGIC CHECK (Waiting for Edge D4->D6) ---",
+      "note": "D6 requires D1 (Active since 2005) AND D4 (Active since 12000). Edge D4->D6 min delay is 2000ms. Earliest D6 is 14000ms."
+    },
+    {
+      "timestamp_ms": 13000,
+      "parameter_id": "sensor_battery_temp_c",
+      "value": 55.0,
+      "is_failure_mode": false,
+      "note": "Temp rising, but D6 not yet active (Threshold 60.0)."
+    },
+    {
+      "timestamp_ms": 14500,
+      "parameter_id": "sensor_battery_temp_c",
+      "value": 65.0,
+      "is_failure_mode": false,
+      "note": "Temp > 60.0 (D6 Active). Time since D4 is 2500ms. Valid (2000 < 2500 < 8000). CRITICALITY 9 REACHED."
+    },
+    {
+      "comment": "--- PHASE 7: CASCADING FAILURE (System Collapse) ---",
+      "expected_nodes": ["D7"]
+    },
+    {
+      "timestamp_ms": 16000,
+      "parameter_id": "sensor_bus_voltage_v",
+      "value": 5.0,
+      "is_failure_mode": false,
+      "note": "Voltage collapses < 10.0 (D7 Active). Delay from D6 is 1500ms. Valid (500-2000ms). CRITICALITY 10."
+    }
+  ]
+}

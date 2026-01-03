@@ -1,0 +1,100 @@
+{
+  "scenario_id": "TEST_001_PUMP_BURNOUT",
+  "description": "Simulates nominal operation followed by electrical pump failure. Verifies propagation delays for Low Current -> Low Pressure -> No Flow.",
+  "start_time_ms": 0,
+  "data_stream": [
+    {
+      "comment": "--- PHASE 1: SYSTEM STARTUP & NOMINAL OPERATION ---"
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_motor_current_amps",
+      "value": 2.5,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 50.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_flow_rate_gpm",
+      "value": 5.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 500,
+      "parameter_id": "sensor_motor_current_amps",
+      "value": 2.6,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 900,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 49.5,
+      "is_failure_mode": false
+    },
+    {
+      "comment": "--- PHASE 2: FAULT INJECTION (Pump Motor Burnout) ---"
+    },
+    {
+      "timestamp_ms": 1000,
+      "parameter_id": "Pump_Motor_Burnout",
+      "value": 1.0,
+      "is_failure_mode": true,
+      "note": "Ground truth label: Fault occurs at t=1000ms"
+    },
+    {
+      "comment": "--- PHASE 3: SYMPTOM 1 (Low Current) ---",
+      "expected_node": "D1",
+      "edge_constraint": "FM1 -> D1 [0, 20ms]"
+    },
+    {
+      "timestamp_ms": 1010,
+      "parameter_id": "sensor_motor_current_amps",
+      "value": 0.0,
+      "is_failure_mode": false,
+      "note": "Current drops to 0. Satisfies D1 predicate (< 0.5) inside 20ms window."
+    },
+    {
+      "comment": "--- PHASE 4: SYMPTOM 2 (Low Pressure) ---",
+      "expected_node": "D2",
+      "edge_constraint": "FM1 -> D2 [100, 500ms]"
+    },
+    {
+      "timestamp_ms": 1100,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 30.0,
+      "is_failure_mode": false,
+      "note": "Pressure dropping, but not yet at failure threshold (< 10)."
+    },
+    {
+      "timestamp_ms": 1250,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 8.0,
+      "is_failure_mode": false,
+      "note": "Pressure drops < 10. Satisfies D2. Time elapsed since FM1: 250ms (Valid: 100 < 250 < 500)."
+    },
+    {
+      "comment": "--- PHASE 5: SYMPTOM 3 (No Flow) ---",
+      "expected_node": "D4",
+      "edge_constraint": "D2 -> D4 [500, 2000ms]"
+    },
+    {
+      "timestamp_ms": 1500,
+      "parameter_id": "sensor_flow_rate_gpm",
+      "value": 3.0,
+      "is_failure_mode": false,
+      "note": "Flow is decreasing due to loss of pressure."
+    },
+    {
+      "timestamp_ms": 1800,
+      "parameter_id": "sensor_flow_rate_gpm",
+      "value": 0.0,
+      "is_failure_mode": false,
+      "note": "Flow drops < 1.0. Satisfies D4. Time elapsed since D2 (1250ms): 550ms (Valid: 500 < 550 < 2000)."
+    }
+  ]
+}

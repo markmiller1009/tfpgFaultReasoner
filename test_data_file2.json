@@ -1,0 +1,79 @@
+{
+  "scenario_id": "TEST_002_VALVE_STUCK",
+  "description": "Simulates nominal operation followed by a valve stuck closed event. Verifies propagation delays for High Pressure -> No Flow.",
+  "start_time_ms": 0,
+  "data_stream": [
+    {
+      "comment": "--- PHASE 1: SYSTEM STARTUP & NOMINAL OPERATION ---"
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_motor_current_amps",
+      "value": 2.5,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 50.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_flow_rate_gpm",
+      "value": 5.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 1000,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 52.0,
+      "is_failure_mode": false
+    },
+    {
+      "comment": "--- PHASE 2: FAULT INJECTION (Valve Stuck Closed) ---"
+    },
+    {
+      "timestamp_ms": 2000,
+      "parameter_id": "Valve_Stuck_Closed",
+      "value": 1.0,
+      "is_failure_mode": true,
+      "note": "Ground truth label: Fault occurs at t=2000ms"
+    },
+    {
+      "comment": "--- PHASE 3: SYMPTOM 1 (High Pressure) ---",
+      "expected_node": "D3",
+      "edge_constraint": "FM2 -> D3 [50, 300ms]"
+    },
+    {
+      "timestamp_ms": 2150,
+      "parameter_id": "sensor_outlet_pressure_psi",
+      "value": 120.0,
+      "is_failure_mode": false,
+      "note": "Pressure spikes > 100.0. Satisfies D3. Elapsed: 150ms (Valid: 50 < 150 < 300)."
+    },
+    {
+      "comment": "--- PHASE 4: CHECK NON-SYMPTOM (Current) ---",
+      "note": "Pump is deadheading, current might fluctuate but should NOT trigger Low Current (D1 < 0.5)."
+    },
+    {
+      "timestamp_ms": 2200,
+      "parameter_id": "sensor_motor_current_amps",
+      "value": 3.0,
+      "is_failure_mode": false,
+      "note": "Current rises slightly due to load, D1 remains Inactive."
+    },
+    {
+      "comment": "--- PHASE 5: SYMPTOM 2 (No Flow) ---",
+      "expected_node": "D4",
+      "edge_constraint": "D3 -> D4 [200, 1000ms]"
+    },
+    {
+      "timestamp_ms": 2600,
+      "parameter_id": "sensor_flow_rate_gpm",
+      "value": 0.0,
+      "is_failure_mode": false,
+      "note": "Flow drops < 1.0. Satisfies D4. Elapsed since D3 (2150ms): 450ms (Valid: 200 < 450 < 1000)."
+    }
+  ]
+}
