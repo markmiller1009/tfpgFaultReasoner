@@ -338,9 +338,12 @@ int main(int argc, char* argv[]) {
 
             if (tier1.empty()) {
                 if (!tier2.empty()) {
-                    std::cout << "[!] WARNING: Active symptoms explained only by low-confidence hypotheses.\n\n";
+                    std::cout << "    [!] WARNING: Active symptoms explained only by low-confidence hypotheses.\n\n";
                 }
-                std::cout << "    - None\n";
+                else
+                {
+                    std::cout << "    - None\n";
+                }
             } else {
                 std::cout << "FAULTS DETECTED:\n";
 
@@ -389,15 +392,46 @@ int main(int argc, char* argv[]) {
                     }
 
                     if (d.node.type == NodeType::FailureMode) {
-                        if (missing_cnt == 0 && (pending_cnt > 0 || unreachable_cnt > 0)) hyp_status = "VERIFIED (Propagating)";
-                        else if (d.plausibility > 0.8) hyp_status = "VERIFIED (Root Cause Active)";
-                        else hyp_status = "POSSIBLE (Weak Evidence)";
-                    } else {
-                         if (missing_cnt > 0) hyp_status = "LOW CONFIDENCE (Precursors Missing)";
-                         else if (pending_cnt > 0) hyp_status = "VERIFIED (Awaiting Propagation)";
-                         else hyp_status = "CONFIRMED";
-                    }
+                        
+                        // NEW LOGIC: Check if the Root Cause itself is active
+                        // (i.e., does this fault directly cause any currently active symptom?)
+                        bool root_cause_active = false;
+                        for (const auto& s_id : d.consistent_symptoms) {
+                            for (const auto& edge : rtfpg.getEdges()) {
+                                if (edge.from == d.node.id && edge.to == s_id) {
+                                    root_cause_active = true;
+                                    break;
+                                }
+                            }
+                            if (root_cause_active) break;
+                        }
 
+                        if (unreachable_cnt > 0) {
+                            if (root_cause_active) {
+                                // The fault is happening (Root is Active), but a downstream branch 
+                                // (like an AND gate) is currently blocked.
+                                hyp_status = "VERIFIED (Downstream Blockage)";
+                            } else {
+                                // The fault has no direct active symptoms, but downstream nodes are unreachable.
+                                // This is a true contradiction (Broken Chain).
+                                hyp_status = "CONTRADICTED (Broken Chain)";
+                            }
+                        } else if (missing_cnt > 0) {
+                            hyp_status = "LOW CONFIDENCE (Evidence Missing)";
+                        } else if (pending_cnt > 0) {
+                            hyp_status = "VERIFIED (Propagating)";
+                        } else if (d.plausibility > 0.8) {
+                            hyp_status = "VERIFIED (Root Cause Active)";
+                        } else {
+                            hyp_status = "POSSIBLE (Weak Evidence)";
+                        }
+                    } else {
+                        // Logic for Discrepancy nodes (if they appear as roots in Tier 2)
+                        if (unreachable_cnt > 0) hyp_status = "INVALID (Parent Inactive)";
+                        else if (missing_cnt > 0) hyp_status = "LOW CONFIDENCE";
+                        else if (pending_cnt > 0) hyp_status = "VERIFIED (Awaiting Propagation)";
+                        else hyp_status = "CONFIRMED";
+                    }
 
                     std::cout << "[?] " << d.node.name << " (" << d.node.id << ") [Confidence: " << (d.plausibility * 100.0) << "%]\n";
                     std::cout << "    > Status: " << hyp_status << "\n";

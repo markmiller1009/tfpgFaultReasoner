@@ -18,21 +18,22 @@ Robustness metrics updated based on new evidence.
 ------------------------------------------------------------------------------
 SYSTEM PROGNOSIS:
    - CRITICAL FAILURE ACTIVE (Target: D3).
-   - WARNING: Cascading Failure expected in 1000 ms (Target: D6).
+   - WARNING: Cascading Failure expected in 1000 ms (Target: D1).
 
-[!] WARNING: Active symptoms explained only by low-confidence hypotheses.
+    [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
 
-    - None
 
 ------------------------------------------------------------------------------
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
 ------------------------------------------------------------------------------
 POTENTIAL FAULTS:
-[?] Regulator_Stuck_Closed (FM3) [Confidence: 50%]
-    > Status: VERIFIED (Propagating)
+[?] Regulator_Stuck_Closed (FM3) [Confidence: 25%]
+    > Status: VERIFIED (Downstream Blockage)
     > Active Symptoms:
       - D3 (Low_Plenum_Pressure) activated at 2200ms
     > Missing / Inactive Symptoms:
+      - D1 (Low_O2_Concentration) is PENDING (Propagation Delay)
+      - D4 (Hypoxia_Risk_Condition) is UNREACHABLE (Parent inactive)
       - D6 (Total_Asphyxia_Risk) is UNREACHABLE (Parent D5 is inactive)
 
 ------------------------------------------------------------------------------
@@ -53,19 +54,20 @@ SYSTEM PROGNOSIS:
    - CRITICAL FAILURE ACTIVE (Target: D3).
    - WARNING: Cascading Failure expected in 10000 ms (Target: D4).
 
-[!] WARNING: Active symptoms explained only by low-confidence hypotheses.
+    [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
 
-    - None
 
 ------------------------------------------------------------------------------
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
 ------------------------------------------------------------------------------
 POTENTIAL FAULTS:
 [?] Regulator_Stuck_Closed (FM3) [Confidence: 50%]
-    > Status: VERIFIED (Propagating)
+    > Status: VERIFIED (Downstream Blockage)
     > Active Symptoms:
+      - D1 (Low_O2_Concentration) activated at 4000ms
       - D3 (Low_Plenum_Pressure) activated at 2200ms
     > Missing / Inactive Symptoms:
+      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
       - D6 (Total_Asphyxia_Risk) is UNREACHABLE (Parent D5 is inactive)
 
 [?] Zeolite_Sieve_Saturation (FM1) [Confidence: 50%]
@@ -94,9 +96,8 @@ SYSTEM PROGNOSIS:
    - CRITICAL FAILURE ACTIVE (Target: D3).
    - WARNING: Cascading Failure expected in 1000 ms (Target: D6).
 
-[!] WARNING: Active symptoms explained only by low-confidence hypotheses.
+    [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
 
-    - None
 
 ------------------------------------------------------------------------------
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
@@ -112,8 +113,10 @@ POTENTIAL FAULTS:
 [?] Regulator_Stuck_Closed (FM3) [Confidence: 50%]
     > Status: VERIFIED (Propagating)
     > Active Symptoms:
+      - D1 (Low_O2_Concentration) activated at 4000ms
       - D3 (Low_Plenum_Pressure) activated at 2200ms
     > Missing / Inactive Symptoms:
+      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
       - D6 (Total_Asphyxia_Risk) is PENDING (Propagation Delay)
 
 [?] Zeolite_Sieve_Saturation (FM1) [Confidence: 50%]
@@ -147,16 +150,20 @@ FAULTS DETECTED:
        > Active Symptoms:
          - D5 (BOS_Depleted) activated at 6500ms
          - D6 (Total_Asphyxia_Risk) activated at 7500ms
-    2. Regulator_Stuck_Closed (FM3)
-       > Status: VERIFIED
-       > Active Symptoms:
-         - D3 (Low_Plenum_Pressure) activated at 2200ms
-         - D6 (Total_Asphyxia_Risk) activated at 7500ms
 
 ------------------------------------------------------------------------------
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
 ------------------------------------------------------------------------------
 POTENTIAL FAULTS:
+[?] Regulator_Stuck_Closed (FM3) [Confidence: 75%]
+    > Status: VERIFIED (Propagating)
+    > Active Symptoms:
+      - D1 (Low_O2_Concentration) activated at 4000ms
+      - D3 (Low_Plenum_Pressure) activated at 2200ms
+      - D6 (Total_Asphyxia_Risk) activated at 7500ms
+    > Missing / Inactive Symptoms:
+      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
+
 [?] Zeolite_Sieve_Saturation (FM1) [Confidence: 50%]
     > Status: VERIFIED (Propagating)
     > Active Symptoms:
