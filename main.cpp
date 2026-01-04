@@ -213,9 +213,11 @@ int main(int argc, char* argv[]) {
         const std::string& target_id = prognosis_result.critical_node_id;
 
         // 3. Check for TTC expiration (TTC reaches 0)
+        // Note: With updated PrognosisManager, ttc will only be <= 0 if a FUTURE event is overdue.
+        // Active events are skipped.
         bool ttc_expired = (ttc <= 0 && last_ttc > 0);
         if (ttc_expired && !diagnoses.empty()) {
-            std::cout << "CRITICAL PROGNOSIS UPDATE: Discrepancy " << target_id << " is now OVERDUE.\n";
+            std::cout << "CRITICAL PROGNOSIS UPDATE: Prediction for " << target_id << " is now OVERDUE.\n";
         }
         last_ttc = ttc;
 
@@ -223,113 +225,248 @@ int main(int argc, char* argv[]) {
         // If any failure modes are identified as active hypotheses, output the results.
         if (!diagnoses.empty() && (symptoms_changed || robustness_changed || ttc_expired)) {
             std::cout << "\n==============================================================================\n";
-            std::cout << "[Time: " << sample.timestamp_ms << "ms] DIAGNOSTIC REPORT\n";
+            std::cout << "[Time: " << sample.timestamp_ms << "ms] SYSTEM DIAGNOSTIC REPORT\n";
             std::cout << "==============================================================================\n";
 
-            // Iterate through each identified fault and run prognosis.
+            std::vector<DiagnosisResult> tier1;
+            std::vector<DiagnosisResult> tier2;
+
             for (const auto& diag : diagnoses) {
-                std::cout << "\nHypothesis: " << diag.node.id << " (" << diag.node.name << ")\n";
-                std::cout << "------------------------------------------------------------------------------\n";
-                std::cout << " * Plausibility: " << (diag.plausibility * 100.0) << "% | Aggregate Robustness: " << diag.robustness << "\n";
-
-                std::vector<std::string> active_symptoms;
-                std::vector<std::string> missing_symptoms;
-
-                for (const auto& id : diag.expected_symptoms) {
-                    if (nodeStates.count(id) && nodeStates.at(id).is_active) {
-                        active_symptoms.push_back(id);
-                    } else {
-                        missing_symptoms.push_back(id);
-                    }
-                }
-
-                auto get_robustness_label = [](double r) -> std::string {
-                    if (r >= 1.0) return "Signal Saturated";
-                    if (r >= 0.7) return "Strong Violation";
-                    if (r >= 0.1) return "Confirmed Failure";
-                    if (r >= 0.0) return "Weak / Marginal";
-                    if (r > -0.2) return "Near Threshold";
-                    return "Signal Nominal";
-                };
-
-                // Calculate max width for alignment
-                size_t max_label_width = 0;
-                auto get_active_label = [&](const std::string& id) {
-                    std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
-                    std::string time_str = "???";
-                    if (nodeStates.count(id)) {
-                         time_str = std::to_string(nodeStates.at(id).activation_time_ms);
-                    }
-                    return id + " (" + name + ") activated at " + time_str + "ms:";
-                };
-                auto get_missing_label = [&](const std::string& id) {
-                    std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
-                    return id + " (" + name + "):";
-                };
-                for (const auto& id : active_symptoms) max_label_width = std::max(max_label_width, get_active_label(id).length());
-                for (const auto& id : missing_symptoms) max_label_width = std::max(max_label_width, get_missing_label(id).length());
-
-                std::cout << " * Discrepancy Breakdown:\n";
-                if (active_symptoms.empty()) {
-                    std::cout << "   - None\n";
+                if (diag.plausibility >= 1.0) {
+                    tier1.push_back(diag);
                 } else {
-                    for (const auto& id : active_symptoms) {
-                        const auto& state = nodeStates.at(id);
-                        std::string label = get_active_label(id);
-                        double rob = state.robustness;
-                        std::string severity = get_robustness_label(rob);
-
-                        std::cout << "   - " << std::left << std::setw(static_cast<int>(max_label_width)) << label << "    [" 
-                                  << (rob > 0 ? "+" : "") << rob << "] " << severity;
-
-                        if (node_lookup.count(id) && node_lookup.at(id).predicate) {
-                            const auto& pred = *node_lookup.at(id).predicate;
-                            std::string signal_name = pred.signal_ref;
-                            if (signal_lookup.count(pred.signal_ref)) {
-                                signal_name = signal_lookup.at(pred.signal_ref).source_name;
-                            }
-                            std::cout << " (" << signal_name << ": " << state.trigger_value << " " << pred.op << " " << pred.threshold << ")";
-                        }
-                        std::cout << "\n";
-                    }
+                    tier2.push_back(diag);
                 }
+            }
 
-                std::cout << " * Missing/Negative Evidence:\n";
-                if (missing_symptoms.empty()) {
-                    std::cout << "   - None\n";
-                } else {
-                    for (const auto& id : missing_symptoms) {
-                        double rob = 0.0;
-                        if (nodeStates.count(id)) rob = nodeStates.at(id).robustness;
-                        std::string label = get_missing_label(id);
-                        std::string severity = get_robustness_label(rob);
-                        std::cout << "   - " << std::left << std::setw(static_cast<int>(max_label_width)) << label << "    [" 
-                                  << (rob > 0 ? "+" : "") << rob << "] " << severity << "\n";
-                    }
-                }
-                
-                std::cout << " * Prognosis:\n";
-                if (ttc == std::numeric_limits<double>::infinity()) {
-                     std::cout << "   - System appears stable; no critical failure path detected from this state.\n";
-                } else {
-                    bool is_target_active = false;
-                    if (!target_id.empty() && nodeStates.count(target_id)) {
-                        is_target_active = nodeStates.at(target_id).is_active;
-                    }
-
-                    if (is_target_active) {
-                        std::cout << "   - CRITICAL FAILURE ACTIVE (Target: " << target_id << ").\n";
-                    } else if (ttc > 0) {
-                        std::cout << "   - WARNING: Time-To-Criticality (TTC) is " << ttc << " ms (Target: " << target_id << ").\n";
-                    } else if (ttc == 0) {
-                        std::cout << "   - CRITICAL: A critical failure condition has been reached (Target: " << target_id << ").\n";
-                    } else {
-                        std::cout << "   - STATUS: Critical propagation stalled. Prediction for " << target_id << " overdue by " 
-                                  << std::abs(ttc) << " ms (Latent Risk).\n";
+            // --- TIER 1: PRIMARY DIAGNOSIS ---
+            std::cout << "\n[TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)\n";
+            std::cout << "------------------------------------------------------------------------------\n";
+            
+            std::cout << "SYSTEM PROGNOSIS:\n";
+            
+            // Check for CURRENTLY ACTIVE critical nodes
+            std::string active_critical_id = "";
+            int max_crit_level = -1;
+            for (const auto& [id, state] : nodeStates) {
+                if (state.is_active && node_lookup.count(id)) {
+                    int cl = node_lookup.at(id).criticality_level;
+                    if (cl >= criticality_threshold && cl > max_crit_level) {
+                        max_crit_level = cl;
+                        active_critical_id = id;
                     }
                 }
             }
-            std::cout << "==============================================================================\n" << std::endl;
+
+            if (!active_critical_id.empty()) {
+                std::cout << "   - CRITICAL FAILURE ACTIVE (Target: " << active_critical_id << ").\n";
+                bool target_is_active = nodeStates.count(target_id) && nodeStates.at(target_id).is_active;
+                if (ttc > 0 && ttc != std::numeric_limits<double>::infinity() && target_id != active_critical_id && !target_is_active) {
+                    std::cout << "   - WARNING: Cascading Failure expected in " << ttc << " ms (Target: " << target_id << ").\n";
+                }
+            } else if (ttc == std::numeric_limits<double>::infinity()) {
+                 std::cout << "   - System stable.\n";
+            } else if (ttc > 0) {
+                std::cout << "   - WARNING: Failure expected in " << ttc << " ms (Target: " << target_id << ").\n";
+            } else {
+                std::cout << "   - Latent Risk (Target: " << target_id << ").\n";
+            }
+            std::cout << "\n";
+
+            // Helper lambda to determine symptom status
+            auto get_symptom_status = [&](const std::string& id, double current_time) -> std::pair<std::string, std::string> {
+                if (nodeStates.count(id) && nodeStates.at(id).is_active) {
+                    return {"CONFIRMED", ""};
+                }
+                
+                // Check parents
+                std::vector<const Edge*> incoming;
+                for (const auto& edge : rtfpg.getEdges()) {
+                    if (edge.to == id) incoming.push_back(&edge);
+                }
+                
+                if (incoming.empty()) return {"MISSING", "No parents"};
+
+                const auto& node_def = node_lookup.at(id);
+                bool is_and = (node_def.gate_type == GateType::AND);
+                
+                if (is_and) {
+                    // AND Gate: All parents must be active
+                    for (const auto* edge : incoming) {
+                        if (!nodeStates.count(edge->from) || !nodeStates.at(edge->from).is_active) {
+                            return {"UNREACHABLE", "Parent " + edge->from + " is inactive"};
+                        }
+                    }
+                    // All parents active. Check timing of the LATEST parent trigger.
+                    double max_act_time = -1.0;
+                    const Edge* triggering_edge = nullptr;
+                    for (const auto* edge : incoming) {
+                        if (nodeStates.at(edge->from).activation_time_ms > max_act_time) {
+                            max_act_time = nodeStates.at(edge->from).activation_time_ms;
+                            triggering_edge = edge;
+                        }
+                    }
+                    
+                    if (triggering_edge) {
+                        double delta = current_time - max_act_time;
+                        if (delta < triggering_edge->time_min_ms) return {"PENDING", "Propagation Delay"};
+                        if (delta > triggering_edge->time_max_ms) return {"MISSING", "Overdue"};
+                        return {"MISSING", "Should be active"};
+                    }
+                } else {
+                    // OR Gate: At least one parent must be active
+                    bool any_active = false;
+                    bool any_overdue = false;
+                    bool all_pending = true;
+                    
+                    for (const auto* edge : incoming) {
+                        if (nodeStates.count(edge->from) && nodeStates.at(edge->from).is_active) {
+                            any_active = true;
+                            double delta = current_time - nodeStates.at(edge->from).activation_time_ms;
+                            if (delta > edge->time_max_ms) any_overdue = true;
+                            if (delta >= edge->time_min_ms) all_pending = false;
+                        }
+                    }
+                    
+                    if (!any_active) return {"UNREACHABLE", "Parent inactive"};
+                    if (any_overdue) return {"MISSING", "Overdue"};
+                    if (all_pending) return {"PENDING", "Propagation Delay"};
+                    return {"MISSING", "Should be active"};
+                }
+                return {"UNKNOWN", ""};
+            };
+
+            if (tier1.empty()) {
+                if (!tier2.empty()) {
+                    std::cout << "[!] WARNING: Active symptoms explained only by low-confidence hypotheses.\n\n";
+                }
+                std::cout << "    - None\n";
+            } else {
+                std::cout << "FAULTS DETECTED:\n";
+
+                int idx = 1;
+
+                for (const auto& d : tier1) {
+                    std::cout << "    " << idx++ << ". " << d.node.name << " (" << d.node.id << ")\n";
+                    // Tier 1 is 100% confidence, so status is generally Verified.
+                    // But we can check for pending items.
+                    // Since Plausibility=1.0, there are no MISSING items (consistent=expected).
+                    // So we assume Verified.
+                    std::cout << "       > Status: VERIFIED\n";
+                    
+                    std::cout << "       > Active Symptoms:\n";
+                    for (const auto& id : d.consistent_symptoms) {
+                        std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
+                        std::string time_str = "Inactive";
+                        if (nodeStates.count(id) && nodeStates.at(id).is_active) {
+                            time_str = std::to_string(nodeStates.at(id).activation_time_ms) + "ms";
+                        }
+                        std::cout << "         - " << id << " (" << name << ") activated at " << time_str << "\n";
+                    }
+
+                }
+            }
+
+            // --- TIER 2: ALTERNATIVE HYPOTHESES ---
+            if (!tier2.empty()) {
+                std::cout << "\n------------------------------------------------------------------------------\n";
+                std::cout << "[TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)\n";
+                std::cout << "------------------------------------------------------------------------------\n";
+                std::cout << "POTENTIAL FAULTS:\n";
+                
+                for (const auto& d : tier2) {
+                    // Determine Hypothesis Status
+                    std::string hyp_status = "CONFIRMED";
+                    int pending_cnt = 0;
+                    int missing_cnt = 0;
+                    int unreachable_cnt = 0;
+                    
+                    for (const auto& id : d.expected_symptoms) {
+                        auto status = get_symptom_status(id, sample.timestamp_ms);
+                        if (status.first == "PENDING") pending_cnt++;
+                        else if (status.first == "UNREACHABLE") unreachable_cnt++;
+                        else if (status.first == "MISSING") missing_cnt++;
+                    }
+
+                    if (d.node.type == NodeType::FailureMode) {
+                        if (missing_cnt == 0 && (pending_cnt > 0 || unreachable_cnt > 0)) hyp_status = "VERIFIED (Propagating)";
+                        else if (d.plausibility > 0.8) hyp_status = "VERIFIED (Root Cause Active)";
+                        else hyp_status = "POSSIBLE (Weak Evidence)";
+                    } else {
+                         if (missing_cnt > 0) hyp_status = "LOW CONFIDENCE (Precursors Missing)";
+                         else if (pending_cnt > 0) hyp_status = "VERIFIED (Awaiting Propagation)";
+                         else hyp_status = "CONFIRMED";
+                    }
+
+
+                    std::cout << "[?] " << d.node.name << " (" << d.node.id << ") [Confidence: " << (d.plausibility * 100.0) << "%]\n";
+                    std::cout << "    > Status: " << hyp_status << "\n";
+                    
+                    std::cout << "    > Active Symptoms:\n";
+                    for (const auto& id : d.consistent_symptoms) {
+                        std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
+                        std::string time_str = "Inactive";
+                        if (nodeStates.count(id) && nodeStates.at(id).is_active) {
+                            time_str = std::to_string(nodeStates.at(id).activation_time_ms) + "ms";
+                        }
+                        std::cout << "      - " << id << " (" << name << ") activated at " << time_str << "\n";
+                    }
+
+                    std::cout << "    > Missing / Inactive Symptoms:\n";
+                    for (const auto& id : d.expected_symptoms) {
+                        bool active = false;
+                        double rob = 0.0;
+                        if (nodeStates.count(id)) {
+                            active = nodeStates.at(id).is_active;
+                            rob = nodeStates.at(id).robustness;
+                        }
+                        
+                        if (!active) {
+                            std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
+                            
+                            auto status = get_symptom_status(id, sample.timestamp_ms);
+                            if (status.first == "UNREACHABLE") {
+                                std::cout << "      - " << id << " (" << name << ") is UNREACHABLE (" << status.second << ")\n";
+                            } else if (status.first == "PENDING") {
+                                std::cout << "      - " << id << " (" << name << ") is PENDING (" << status.second << ")\n";
+                            } else {
+                                std::cout << "      - " << id << " (" << name << ") is MISSING (" << status.second << ")\n";
+                            }
+                        }
+                    }
+                    std::cout << "\n";
+                }
+            }
+
+            // --- UNEXPLAINED SYMPTOMS ---
+            std::cout << "------------------------------------------------------------------------------\n";
+            std::cout << "[TIER 3] UNEXPLAINED SYMPTOMS:\n";
+            std::cout << "------------------------------------------------------------------------------\n";
+            
+            std::set<std::string> explained_symptoms;
+            for (const auto& d : tier1) {
+                for (const auto& s : d.consistent_symptoms) explained_symptoms.insert(s);
+            }
+            for (const auto& d : tier2) {
+                for (const auto& s : d.consistent_symptoms) explained_symptoms.insert(s);
+            }
+
+            bool found_unexplained = false;
+            for (const auto& [id, state] : nodeStates) {
+                if (state.is_active && node_lookup.count(id) && node_lookup.at(id).type == NodeType::Discrepancy) {
+                    if (explained_symptoms.find(id) == explained_symptoms.end()) {
+                        std::string name = node_lookup.at(id).name;
+                        std::cout << "    - " << id << " (" << name << ")\n";
+                        std::cout << "      > Analysis: Active but not predicted by selected hypotheses.\n";
+                        std::cout << "      > Potential Causes: Signal Noise, Unmodeled Fault, or Hypothesis Truncation.\n";
+                        found_unexplained = true;
+                    }
+                }
+            }
+            if (!found_unexplained) {
+                std::cout << "    - None\n";
+            }
+            std::cout << "\n";
         }
     }
 

@@ -31,8 +31,11 @@ void PrognosisManager::buildGraph() {
 // Plausibility is the ratio of observed symptoms to expected symptoms for that failure.
 double PrognosisManager::calculatePlausibility(const std::string& hypothesisId, 
                                                const std::unordered_map<std::string, NodeState>& nodeStates) {
-    std::queue<std::string> q;
-    q.push(hypothesisId);
+    // Queue stores {node_id, chain_is_valid}
+    // chain_is_valid: true if the path from hypothesis to here is unbroken (active or pending).
+    std::queue<std::pair<std::string, bool>> q;
+    q.push({hypothesisId, true}); 
+
     std::set<std::string> visited;
     visited.insert(hypothesisId);
 
@@ -40,18 +43,38 @@ double PrognosisManager::calculatePlausibility(const std::string& hypothesisId,
     int consistent = 0;    // Counter for expected symptoms that are actually active.
 
     while (!q.empty()) {
-        std::string currId = q.front();
+        auto [currId, chainValid] = q.front();
         q.pop();
 
-        // Check if the current node is a Discrepancy (i.e., a symptom).
-        if (m_node_map.count(currId)) {
-            const auto& node = m_node_map.at(currId);
-            if (node.type == NodeType::Discrepancy) {
+        // Determine if current node is active
+        bool isActive = (currId == hypothesisId);
+        if (nodeStates.count(currId) && nodeStates.at(currId).is_active) {
+            isActive = true;
+        }
+
+        bool nextChainValid = false;
+
+        if (isActive) {
+            // Node is active. The chain is confirmed valid at this point.
+            nextChainValid = true;
+            
+            if (m_node_map.count(currId) && m_node_map.at(currId).type == NodeType::Discrepancy) {
                 totalExpected++;
-                // If the symptom is active in the current state, it is consistent with the hypothesis.
-                if (nodeStates.count(currId) && nodeStates.at(currId).is_active) {
-                    consistent++;
+                consistent++;
+            }
+        } else {
+            // Node is inactive.
+            if (chainValid) {
+                // Parent was active or pending. This node is PENDING (Propagation Delay).
+                // Do not penalize. Chain remains valid (Pending propagates).
+                nextChainValid = true;
+            } else {
+                // Parent was broken/unreachable. This node is UNREACHABLE.
+                // Penalize.
+                if (m_node_map.count(currId) && m_node_map.at(currId).type == NodeType::Discrepancy) {
+                    totalExpected++;
                 }
+                nextChainValid = false;
             }
         }
 
@@ -60,7 +83,7 @@ double PrognosisManager::calculatePlausibility(const std::string& hypothesisId,
             for (const auto& edge : m_adj.at(currId)) {
                 if (visited.find(edge.first) == visited.end()) {
                     visited.insert(edge.first);
-                    q.push(edge.first);
+                    q.push({edge.first, nextChainValid});
                 }
             }
         }
@@ -101,14 +124,13 @@ PrognosisResult PrognosisManager::calculateTTC(const std::unordered_map<std::str
 
         // Check if we have reached a node on the "Criticality Front".
         if (m_node_map.count(u) && m_node_map.at(u).criticality_level >= criticalityThreshold) {
-            // If so, we have found the shortest path to a critical failure.
-            double ttc = d - current_time;
-            // std::cout << "[Prognosis] Critical node " << u << " (Level " << m_node_map.at(u).criticality_level 
-            //           << ") predicted at " << d << "ms. TTC: " << ttc << "ms";
-            // if (ttc < 0) std::cout << " (Overdue)";
-            // std::cout << ".\n";
-            // Return the time difference from now.
-            return {ttc, u};
+            // If so, we have found a path to a critical failure.
+            // Only return if this node is NOT already active (we want future prognosis).
+            if (!nodeStates.count(u) || !nodeStates.at(u).is_active) {
+                double ttc = d - current_time;
+                return {ttc, u};
+            }
+            // If it is active, we continue searching downstream for the next critical event.
         }
 
         // Optimization: if we found a shorter path to `u` already, skip.
@@ -127,10 +149,17 @@ PrognosisResult PrognosisManager::calculateTTC(const std::unordered_map<std::str
 
                 // The weight of the edge is the minimum propagation time.
                 int weight = edge.second; // t_propagation
+                double arrival_time = d + weight;
+
+                // Filter out paths that predict activation in the past.
+                // This prevents prognosis stagnation when a predicted path fails to trigger (e.g. AND-gate).
+                if (arrival_time < current_time) {
+                    continue;
+                }
 
                 // If we found a new shorter path to `v`, update its distance and add it to the queue.
-                if (!min_dist.count(v) || min_dist[v] > d + weight) {
-                    min_dist[v] = d + weight;
+                if (!min_dist.count(v) || min_dist[v] > arrival_time) {
+                    min_dist[v] = arrival_time;
                     pq.push({min_dist[v], v});
                 }
             }
