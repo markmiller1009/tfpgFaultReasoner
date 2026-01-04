@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -230,38 +232,81 @@ int main(int argc, char* argv[]) {
                 std::cout << "------------------------------------------------------------------------------\n";
                 std::cout << " * Plausibility: " << (diag.plausibility * 100.0) << "% | Aggregate Robustness: " << diag.robustness << "\n";
 
-                std::cout << " * Expected Discrepancies: " << diag.expected_symptoms.size() << "\n";
+                std::vector<std::string> active_symptoms;
+                std::vector<std::string> missing_symptoms;
+
                 for (const auto& id : diag.expected_symptoms) {
-                    double rob = 0.0;
-                    bool active = false;
+                    if (nodeStates.count(id) && nodeStates.at(id).is_active) {
+                        active_symptoms.push_back(id);
+                    } else {
+                        missing_symptoms.push_back(id);
+                    }
+                }
+
+                auto get_robustness_label = [](double r) -> std::string {
+                    if (r >= 1.0) return "Signal Saturated";
+                    if (r >= 0.7) return "Strong Violation";
+                    if (r >= 0.1) return "Confirmed Failure";
+                    if (r >= 0.0) return "Weak / Marginal";
+                    if (r > -0.2) return "Near Threshold";
+                    return "Signal Nominal";
+                };
+
+                // Calculate max width for alignment
+                size_t max_label_width = 0;
+                auto get_active_label = [&](const std::string& id) {
+                    std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
+                    std::string time_str = "???";
                     if (nodeStates.count(id)) {
-                        rob = nodeStates.at(id).robustness;
-                        active = nodeStates.at(id).is_active;
+                         time_str = std::to_string(nodeStates.at(id).activation_time_ms);
                     }
-                    std::cout << "   - " << id << ": " << (rob > 0 ? "+" : "") << rob 
-                              << " (" << (active ? "Active" : "Inactive/Missing") << ")";
-                    if (node_lookup.count(id)) {
-                        std::cout << " [CL:" << node_lookup.at(id).criticality_level << "]";
-                    }
-                    std::cout << "\n";
-                }
+                    return id + " (" + name + ") activated at " + time_str + "ms:";
+                };
+                auto get_missing_label = [&](const std::string& id) {
+                    std::string name = node_lookup.count(id) ? node_lookup.at(id).name : "Unknown";
+                    return id + " (" + name + "):";
+                };
+                for (const auto& id : active_symptoms) max_label_width = std::max(max_label_width, get_active_label(id).length());
+                for (const auto& id : missing_symptoms) max_label_width = std::max(max_label_width, get_missing_label(id).length());
 
-                std::cout << " * Observed Discrepancies: " << diag.consistent_symptoms.size() << "\n";
-                for (const auto& id : diag.consistent_symptoms) {
-                    const auto& state = nodeStates.at(id);
-                    std::cout << "   - " << id << ": Activated at t=" << state.activation_time_ms << "ms";
+                std::cout << " * Discrepancy Breakdown:\n";
+                if (active_symptoms.empty()) {
+                    std::cout << "   - None\n";
+                } else {
+                    for (const auto& id : active_symptoms) {
+                        const auto& state = nodeStates.at(id);
+                        std::string label = get_active_label(id);
+                        double rob = state.robustness;
+                        std::string severity = get_robustness_label(rob);
 
-                    if (node_lookup.count(id) && node_lookup.at(id).predicate) {
-                        const auto& pred = *node_lookup.at(id).predicate;
-                        std::string signal_name = pred.signal_ref;
-                        if (signal_lookup.count(pred.signal_ref)) {
-                            signal_name = signal_lookup.at(pred.signal_ref).source_name;
+                        std::cout << "   - " << std::left << std::setw(static_cast<int>(max_label_width)) << label << "    [" 
+                                  << (rob > 0 ? "+" : "") << rob << "] " << severity;
+
+                        if (node_lookup.count(id) && node_lookup.at(id).predicate) {
+                            const auto& pred = *node_lookup.at(id).predicate;
+                            std::string signal_name = pred.signal_ref;
+                            if (signal_lookup.count(pred.signal_ref)) {
+                                signal_name = signal_lookup.at(pred.signal_ref).source_name;
+                            }
+                            std::cout << " (" << signal_name << ": " << state.trigger_value << " " << pred.op << " " << pred.threshold << ")";
                         }
-                        std::cout << " (" << signal_name << ": " << state.trigger_value << pred.op << pred.threshold << ")";
+                        std::cout << "\n";
                     }
-                    std::cout << ".\n";
                 }
 
+                std::cout << " * Missing/Negative Evidence:\n";
+                if (missing_symptoms.empty()) {
+                    std::cout << "   - None\n";
+                } else {
+                    for (const auto& id : missing_symptoms) {
+                        double rob = 0.0;
+                        if (nodeStates.count(id)) rob = nodeStates.at(id).robustness;
+                        std::string label = get_missing_label(id);
+                        std::string severity = get_robustness_label(rob);
+                        std::cout << "   - " << std::left << std::setw(static_cast<int>(max_label_width)) << label << "    [" 
+                                  << (rob > 0 ? "+" : "") << rob << "] " << severity << "\n";
+                    }
+                }
                 
                 std::cout << " * Prognosis:\n";
                 if (ttc == std::numeric_limits<double>::infinity()) {

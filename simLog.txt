@@ -18,11 +18,10 @@ CRITICAL PROGNOSIS UPDATE: Discrepancy D3 is now OVERDUE.
 Hypothesis: FM3 (Regulator_Stuck_Closed)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: 0.0291667
- * Expected Discrepancies: 2
-   - D3: +0.05 (Active) [CL:6]
-   - D6: +0.00833333 (Inactive/Missing) [CL:10]
- * Observed Discrepancies: 1
-   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+ * Discrepancy Breakdown:
+   - D3 (Low_Plenum_Pressure) activated at 2200ms:    [+0.05] Weak / Marginal (sensor_plenum_pressure_psi: 4 < 10)
+ * Missing/Negative Evidence:
+   - D6 (Total_Asphyxia_Risk):                        [+0.00833333] Weak / Marginal
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 ==============================================================================
@@ -37,22 +36,20 @@ Robustness metrics updated based on new evidence.
 Hypothesis: FM3 (Regulator_Stuck_Closed)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: 0.0291667
- * Expected Discrepancies: 2
-   - D3: +0.05 (Active) [CL:6]
-   - D6: +0.00833333 (Inactive/Missing) [CL:10]
- * Observed Discrepancies: 1
-   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+ * Discrepancy Breakdown:
+   - D3 (Low_Plenum_Pressure) activated at 2200ms:    [+0.05] Weak / Marginal (sensor_plenum_pressure_psi: 4 < 10)
+ * Missing/Negative Evidence:
+   - D6 (Total_Asphyxia_Risk):                        [+0.00833333] Weak / Marginal
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 
 Hypothesis: FM1 (Zeolite_Sieve_Saturation)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: -0.01
- * Expected Discrepancies: 2
-   - D1: +0.03 (Active) [CL:5]
-   - D4: -0.05 (Inactive/Missing) [CL:8]
- * Observed Discrepancies: 1
-   - D1: Activated at t=4000ms (sensor_product_o2_conc_pct: 90<93).
+ * Discrepancy Breakdown:
+   - D1 (Low_O2_Concentration) activated at 4000ms:    [+0.03] Weak / Marginal (sensor_product_o2_conc_pct: 90 < 93)
+ * Missing/Negative Evidence:
+   - D4 (Hypoxia_Risk_Condition):                      [-0.05] Near Threshold
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 ==============================================================================
@@ -68,33 +65,30 @@ Robustness metrics updated based on new evidence.
 Hypothesis: FM4 (BOS_Leak)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: 0.0416667
- * Expected Discrepancies: 2
-   - D5: +0.075 (Active) [CL:4]
-   - D6: +0.00833333 (Inactive/Missing) [CL:10]
- * Observed Discrepancies: 1
-   - D5: Activated at t=6500ms (sensor_bos_pressure_psi: 50<200).
+ * Discrepancy Breakdown:
+   - D5 (BOS_Depleted) activated at 6500ms:    [+0.075] Weak / Marginal (sensor_bos_pressure_psi: 50 < 200)
+ * Missing/Negative Evidence:
+   - D6 (Total_Asphyxia_Risk):                 [+0.00833333] Weak / Marginal
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 
 Hypothesis: FM3 (Regulator_Stuck_Closed)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: 0.0291667
- * Expected Discrepancies: 2
-   - D3: +0.05 (Active) [CL:6]
-   - D6: +0.00833333 (Inactive/Missing) [CL:10]
- * Observed Discrepancies: 1
-   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+ * Discrepancy Breakdown:
+   - D3 (Low_Plenum_Pressure) activated at 2200ms:    [+0.05] Weak / Marginal (sensor_plenum_pressure_psi: 4 < 10)
+ * Missing/Negative Evidence:
+   - D6 (Total_Asphyxia_Risk):                        [+0.00833333] Weak / Marginal
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 
 Hypothesis: FM1 (Zeolite_Sieve_Saturation)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: -0.01
- * Expected Discrepancies: 2
-   - D1: +0.03 (Active) [CL:5]
-   - D4: -0.05 (Inactive/Missing) [CL:8]
- * Observed Discrepancies: 1
-   - D1: Activated at t=4000ms (sensor_product_o2_conc_pct: 90<93).
+ * Discrepancy Breakdown:
+   - D1 (Low_O2_Concentration) activated at 4000ms:    [+0.03] Weak / Marginal (sensor_product_o2_conc_pct: 90 < 93)
+ * Missing/Negative Evidence:
+   - D4 (Hypoxia_Risk_Condition):                      [-0.05] Near Threshold
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 ==============================================================================
@@ -109,35 +103,32 @@ Robustness metrics updated based on new evidence.
 Hypothesis: FM4 (BOS_Leak)
 ------------------------------------------------------------------------------
  * Plausibility: 100% | Aggregate Robustness: 0.05
- * Expected Discrepancies: 2
-   - D5: +0.075 (Active) [CL:4]
-   - D6: +0.025 (Active) [CL:10]
- * Observed Discrepancies: 2
-   - D5: Activated at t=6500ms (sensor_bos_pressure_psi: 50<200).
-   - D6: Activated at t=7500ms (sensor_plenum_pressure_psi: 2<5).
+ * Discrepancy Breakdown:
+   - D5 (BOS_Depleted) activated at 6500ms:           [+0.075] Weak / Marginal (sensor_bos_pressure_psi: 50 < 200)
+   - D6 (Total_Asphyxia_Risk) activated at 7500ms:    [+0.025] Weak / Marginal (sensor_plenum_pressure_psi: 2 < 5)
+ * Missing/Negative Evidence:
+   - None
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 
 Hypothesis: FM3 (Regulator_Stuck_Closed)
 ------------------------------------------------------------------------------
  * Plausibility: 100% | Aggregate Robustness: 0.0375
- * Expected Discrepancies: 2
-   - D3: +0.05 (Active) [CL:6]
-   - D6: +0.025 (Active) [CL:10]
- * Observed Discrepancies: 2
-   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
-   - D6: Activated at t=7500ms (sensor_plenum_pressure_psi: 2<5).
+ * Discrepancy Breakdown:
+   - D3 (Low_Plenum_Pressure) activated at 2200ms:    [+0.05] Weak / Marginal (sensor_plenum_pressure_psi: 4 < 10)
+   - D6 (Total_Asphyxia_Risk) activated at 7500ms:    [+0.025] Weak / Marginal (sensor_plenum_pressure_psi: 2 < 5)
+ * Missing/Negative Evidence:
+   - None
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 
 Hypothesis: FM1 (Zeolite_Sieve_Saturation)
 ------------------------------------------------------------------------------
  * Plausibility: 50% | Aggregate Robustness: -0.01
- * Expected Discrepancies: 2
-   - D1: +0.03 (Active) [CL:5]
-   - D4: -0.05 (Inactive/Missing) [CL:8]
- * Observed Discrepancies: 1
-   - D1: Activated at t=4000ms (sensor_product_o2_conc_pct: 90<93).
+ * Discrepancy Breakdown:
+   - D1 (Low_O2_Concentration) activated at 4000ms:    [+0.03] Weak / Marginal (sensor_product_o2_conc_pct: 90 < 93)
+ * Missing/Negative Evidence:
+   - D4 (Hypoxia_Risk_Condition):                      [-0.05] Near Threshold
  * Prognosis:
    - CRITICAL FAILURE ACTIVE (Target: D3).
 ==============================================================================
