@@ -69,14 +69,33 @@ void evaluateSignalTrace(const rTFPGModel& model, const SignalIngestor& ingestor
 
                     if (source_name_for_predicate == sample.parameterID) {
                         double robustness = calculateRobustness(*node.predicate, sample.value, range_min, range_max);
-                        if (robustness > 0 && !node_states[node.id].is_active) {
-                            node_states[node.id].is_active = true;
+                        
+                        // Update robustness for inactive nodes to reflect current state (e.g. negative or positive-but-blocked)
+                        if (!node_states[node.id].is_active) {
                             node_states[node.id].robustness = robustness;
-                            node_states[node.id].activation_time_ms = sample.timestamp_ms;
-                            std::cout << "Node " << node.id << " (" << node.name << ") activated at time " << sample.timestamp_ms << "ms";
-                            std::cout << " (" << source_name_for_predicate << ": " << sample.value << node.predicate->op << node.predicate->threshold << ").\n";
-                            node_states[node.id].trigger_value = sample.value;
-                            // std::cout << "Node " << node.id << " (" << node.name << ") activated at time " << sample.timestamp_ms << "ms.\n";
+                        }
+
+                        if (robustness > 0 && !node_states[node.id].is_active) {
+                            bool condition_met = true;
+                            if (node.gate_type == GateType::AND) {
+                                for (const auto& edge : model.getEdges()) {
+                                    if (edge.to == node.id) {
+                                        if (!node_states[edge.from].is_active || node_states[edge.from].activation_time_ms > sample.timestamp_ms) {
+                                            condition_met = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (condition_met) {
+                                node_states[node.id].is_active = true;
+                                node_states[node.id].robustness = robustness;
+                                node_states[node.id].activation_time_ms = sample.timestamp_ms;
+                                std::cout << "Node " << node.id << " (" << node.name << ") activated at time " << sample.timestamp_ms << "ms";
+                                std::cout << " (" << source_name_for_predicate << ": " << sample.value << node.predicate->op << node.predicate->threshold << ").\n";
+                                node_states[node.id].trigger_value = sample.value;
+                            }
                         }
                     }
                 }
@@ -187,15 +206,17 @@ std::vector<DiagnosisResult> LogicEngine::findActiveHypotheses() {
         }
 
         int consistent_count = 0;
-        double total_robustness = 0.0;
+        double sum_all_robustness = 0.0;
         std::vector<std::string> consistent_symptoms;
         std::map<std::string, double> symptom_values;
         for (const auto& s_id : expected_symptoms) {
-            if (m_node_states.count(s_id) && m_node_states.at(s_id).is_active) {
-                consistent_count++;
-                total_robustness += m_node_states.at(s_id).robustness;
-                consistent_symptoms.push_back(s_id);
-                symptom_values[s_id] = m_node_states.at(s_id).trigger_value;
+            if (m_node_states.count(s_id)) {
+                sum_all_robustness += m_node_states.at(s_id).robustness;
+                if (m_node_states.at(s_id).is_active) {
+                    consistent_count++;
+                    consistent_symptoms.push_back(s_id);
+                    symptom_values[s_id] = m_node_states.at(s_id).trigger_value;
+                }
             }
         }
 
@@ -204,8 +225,7 @@ std::vector<DiagnosisResult> LogicEngine::findActiveHypotheses() {
         // Calculate Aggregate Robustness normalized between -1.0 and 1.0
         double aggregate_robustness = 0.0;
         if (!expected_symptoms.empty()) {
-            double missing_count = (double)expected_symptoms.size() - consistent_count;
-            aggregate_robustness = (total_robustness - missing_count) / expected_symptoms.size();
+            aggregate_robustness = sum_all_robustness / expected_symptoms.size();
             // Clamp to -1.0 to 1.0
             aggregate_robustness = std::max(-1.0, std::min(1.0, aggregate_robustness));
         }

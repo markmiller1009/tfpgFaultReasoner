@@ -1,0 +1,146 @@
+Fault Model: .\f22_obogs_sample_model.json
+Test Data: .\f22_failure_scenario_1.json
+--------------------------------------------------
+System Initialized. Nodes: 10
+Starting Simulation: "TEST_004_DOUBLE_FAILURE_ASPHYXIA"
+
+
+Using Criticality Threshold: 5
+FAULT INJECTED: Regulator_Stuck_Closed activated at time 2000ms.
+Node D3 (Low_Plenum_Pressure) activated at time 2200ms (sensor_plenum_pressure_psi: 4<10).
+Robustness metrics updated based on new evidence.
+CRITICAL PROGNOSIS UPDATE: Discrepancy D3 is now OVERDUE.
+
+==============================================================================
+[Time: 2200ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM3 (Regulator_Stuck_Closed)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: 0.0291667
+ * Expected Discrepancies: 2
+   - D3: +0.05 (Active) [CL:6]
+   - D6: +0.00833333 (Inactive/Missing) [CL:10]
+ * Observed Discrepancies: 1
+   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+==============================================================================
+
+Node D1 (Low_O2_Concentration) activated at time 4000ms (sensor_product_o2_conc_pct: 90<93).
+Robustness metrics updated based on new evidence.
+
+==============================================================================
+[Time: 4000ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM3 (Regulator_Stuck_Closed)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: 0.0291667
+ * Expected Discrepancies: 2
+   - D3: +0.05 (Active) [CL:6]
+   - D6: +0.00833333 (Inactive/Missing) [CL:10]
+ * Observed Discrepancies: 1
+   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+
+Hypothesis: FM1 (Zeolite_Sieve_Saturation)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.01
+ * Expected Discrepancies: 2
+   - D1: +0.03 (Active) [CL:5]
+   - D4: -0.05 (Inactive/Missing) [CL:8]
+ * Observed Discrepancies: 1
+   - D1: Activated at t=4000ms (sensor_product_o2_conc_pct: 90<93).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+==============================================================================
+
+FAULT INJECTED: BOS_Leak activated at time 6000ms.
+Node D5 (BOS_Depleted) activated at time 6500ms (sensor_bos_pressure_psi: 50<200).
+Robustness metrics updated based on new evidence.
+
+==============================================================================
+[Time: 6500ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM4 (BOS_Leak)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: 0.0416667
+ * Expected Discrepancies: 2
+   - D5: +0.075 (Active) [CL:4]
+   - D6: +0.00833333 (Inactive/Missing) [CL:10]
+ * Observed Discrepancies: 1
+   - D5: Activated at t=6500ms (sensor_bos_pressure_psi: 50<200).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+
+Hypothesis: FM3 (Regulator_Stuck_Closed)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: 0.0291667
+ * Expected Discrepancies: 2
+   - D3: +0.05 (Active) [CL:6]
+   - D6: +0.00833333 (Inactive/Missing) [CL:10]
+ * Observed Discrepancies: 1
+   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+
+Hypothesis: FM1 (Zeolite_Sieve_Saturation)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.01
+ * Expected Discrepancies: 2
+   - D1: +0.03 (Active) [CL:5]
+   - D4: -0.05 (Inactive/Missing) [CL:8]
+ * Observed Discrepancies: 1
+   - D1: Activated at t=4000ms (sensor_product_o2_conc_pct: 90<93).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+==============================================================================
+
+Node D6 (Total_Asphyxia_Risk) activated at time 7500ms (sensor_plenum_pressure_psi: 2<5).
+Robustness metrics updated based on new evidence.
+
+==============================================================================
+[Time: 7500ms] DIAGNOSTIC REPORT
+==============================================================================
+
+Hypothesis: FM4 (BOS_Leak)
+------------------------------------------------------------------------------
+ * Plausibility: 100% | Aggregate Robustness: 0.05
+ * Expected Discrepancies: 2
+   - D5: +0.075 (Active) [CL:4]
+   - D6: +0.025 (Active) [CL:10]
+ * Observed Discrepancies: 2
+   - D5: Activated at t=6500ms (sensor_bos_pressure_psi: 50<200).
+   - D6: Activated at t=7500ms (sensor_plenum_pressure_psi: 2<5).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+
+Hypothesis: FM3 (Regulator_Stuck_Closed)
+------------------------------------------------------------------------------
+ * Plausibility: 100% | Aggregate Robustness: 0.0375
+ * Expected Discrepancies: 2
+   - D3: +0.05 (Active) [CL:6]
+   - D6: +0.025 (Active) [CL:10]
+ * Observed Discrepancies: 2
+   - D3: Activated at t=2200ms (sensor_plenum_pressure_psi: 4<10).
+   - D6: Activated at t=7500ms (sensor_plenum_pressure_psi: 2<5).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+
+Hypothesis: FM1 (Zeolite_Sieve_Saturation)
+------------------------------------------------------------------------------
+ * Plausibility: 50% | Aggregate Robustness: -0.01
+ * Expected Discrepancies: 2
+   - D1: +0.03 (Active) [CL:5]
+   - D4: -0.05 (Inactive/Missing) [CL:8]
+ * Observed Discrepancies: 1
+   - D1: Activated at t=4000ms (sensor_product_o2_conc_pct: 90<93).
+ * Prognosis:
+   - CRITICAL FAILURE ACTIVE (Target: D3).
+==============================================================================
+
+
+Simulation Complete.

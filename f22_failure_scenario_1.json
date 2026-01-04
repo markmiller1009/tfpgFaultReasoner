@@ -1,0 +1,107 @@
+{
+  "scenario_id": "TEST_004_DOUBLE_FAILURE_ASPHYXIA",
+  "description": "Complex dual-failure scenario. Primary regulator failure (FM3) is followed by a latent failure in the Backup Oxygen System (FM4). This exercises the AND-gate logic for 'Total Asphyxia' and tests the Prognosis Manager's handling of latent risks.",
+  "start_time_ms": 0,
+  "data_stream": [
+    {
+      "comment": "--- PHASE 1: NOMINAL FLIGHT ---"
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_product_o2_conc_pct",
+      "value": 94.5,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_plenum_pressure_psi",
+      "value": 45.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_bleed_air_co_ppm",
+      "value": 5.0,
+      "is_failure_mode": false
+    },
+    {
+      "timestamp_ms": 0,
+      "parameter_id": "sensor_bos_pressure_psi",
+      "value": 1800.0,
+      "is_failure_mode": false
+    },
+    {
+      "comment": "--- PHASE 2: INJECTION OF FAULT 1 (Regulator Stuck) ---"
+    },
+    {
+      "timestamp_ms": 2000,
+      "parameter_id": "Regulator_Stuck_Closed",
+      "value": 1.0,
+      "is_failure_mode": true,
+      "note": "Root Cause 1: Breathing regulator jams shut."
+    },
+    {
+      "comment": "--- PHASE 3: PRIMARY SYSTEM FAILURE (D3) ---",
+      "expected_nodes": ["D3"],
+      "note": "Pressure drops rapidly < 10 psi."
+    },
+    {
+      "timestamp_ms": 2200,
+      "parameter_id": "sensor_plenum_pressure_psi",
+      "value": 4.0,
+      "is_failure_mode": false,
+      "note": "Satisfies D3. Edge Delay: 200ms (Valid: 100-500ms). System enters LATENT RISK state (Waiting for D5)."
+    },
+    {
+      "comment": "--- PHASE 4: PILOT REACTION DELAY (System Degraded) ---",
+      "note": "During this window, the Prognosis Manager should report 'Critical propagation stalled' or 'Latent Risk'."
+    },
+    {
+      "timestamp_ms": 4000,
+      "parameter_id": "sensor_product_o2_conc_pct",
+      "value": 90.0,
+      "is_failure_mode": false,
+      "note": "O2 drops slightly due to no flow, triggers D1 (Low O2) eventually, but D1 is Level 5."
+    },
+    {
+      "comment": "--- PHASE 5: INJECTION OF FAULT 2 (BOS Empty) ---",
+      "note": "Pilot attempts to pull emergency ring, but BOS is empty."
+    },
+    {
+      "timestamp_ms": 6000,
+      "parameter_id": "BOS_Leak",
+      "value": 1.0,
+      "is_failure_mode": true
+    },
+    {
+      "comment": "--- PHASE 6: BACKUP FAILURE (D5) ---",
+      "expected_nodes": ["D5"]
+    },
+    {
+      "timestamp_ms": 6500,
+      "parameter_id": "sensor_bos_pressure_psi",
+      "value": 50.0,
+      "is_failure_mode": false,
+      "note": "Pressure < 200 psi. Satisfies D5. Edge Delay: 500ms (Valid: 0-1000ms)."
+    },
+    {
+      "comment": "--- PHASE 7: CATASTROPHIC LOGIC (AND Gate D6) ---",
+      "expected_nodes": ["D6"],
+      "note": "D6 requires D3 (Active t=2200) AND D5 (Active t=6500). Delays: D3->D6 [1-5s], D5->D6 [1-5s]."
+    },
+    {
+      "timestamp_ms": 7500,
+      "parameter_id": "sensor_plenum_pressure_psi",
+      "value": 2.0,
+      "is_failure_mode": false,
+      "note": "System state update. D6 Condition check: T_curr (7500) - T_D5 (6500) = 1000ms. Min delay satisfied."
+    },
+    {
+      "timestamp_ms": 7500,
+      "parameter_id": "sensor_bos_pressure_psi",
+      "value": 0.0,
+      "is_failure_mode": false,
+      "note": "CRITICALITY LEVEL 10 REACHED. Pilot Asphyxia imminent."
+    }
+  ]
+}

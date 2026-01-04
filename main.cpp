@@ -230,17 +230,21 @@ int main(int argc, char* argv[]) {
                 std::cout << "------------------------------------------------------------------------------\n";
                 std::cout << " * Plausibility: " << (diag.plausibility * 100.0) << "% | Aggregate Robustness: " << diag.robustness << "\n";
 
-                std::cout << " * Expected Discrepancies: " << diag.expected_symptoms.size() << " (";
-                bool first = true;
+                std::cout << " * Expected Discrepancies: " << diag.expected_symptoms.size() << "\n";
                 for (const auto& id : diag.expected_symptoms) {
-                    if (!first) { std::cout << ", "; }
-                    std::cout << id;
+                    double rob = 0.0;
+                    bool active = false;
+                    if (nodeStates.count(id)) {
+                        rob = nodeStates.at(id).robustness;
+                        active = nodeStates.at(id).is_active;
+                    }
+                    std::cout << "   - " << id << ": " << (rob > 0 ? "+" : "") << rob 
+                              << " (" << (active ? "Active" : "Inactive/Missing") << ")";
                     if (node_lookup.count(id)) {
                         std::cout << " [CL:" << node_lookup.at(id).criticality_level << "]";
                     }
-                    first = false;
+                    std::cout << "\n";
                 }
-                std::cout << ")\n";
 
                 std::cout << " * Observed Discrepancies: " << diag.consistent_symptoms.size() << "\n";
                 for (const auto& id : diag.consistent_symptoms) {

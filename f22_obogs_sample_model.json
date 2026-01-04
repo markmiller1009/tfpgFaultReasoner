@@ -1,0 +1,189 @@
+{
+  "model_name": "F22_OBOGS_Monitor",
+  "version": "1.0",
+  "description": "Fault model for On-Board Oxygen Generation System (OBOGS). Monitors sieve bed performance, bleed air contamination, and backup supply integrity.",
+  "signals": [
+    {
+      "id": "S1",
+      "source_name": "sensor_product_o2_conc_pct",
+      "type": "Continuous",
+      "units": "Percent",
+      "range_min": 0.0,
+      "range_max": 100.0
+    },
+    {
+      "id": "S2",
+      "source_name": "sensor_plenum_pressure_psi",
+      "type": "Continuous",
+      "units": "PSI",
+      "range_min": 0.0,
+      "range_max": 120.0
+    },
+    {
+      "id": "S3",
+      "source_name": "sensor_bleed_air_co_ppm",
+      "type": "Continuous",
+      "units": "PPM",
+      "range_min": 0.0,
+      "range_max": 500.0
+    },
+    {
+      "id": "S4",
+      "source_name": "sensor_bos_pressure_psi",
+      "type": "Continuous",
+      "units": "PSI",
+      "range_min": 0.0,
+      "range_max": 2000.0
+    }
+  ],
+  "nodes": [
+    {
+      "id": "FM1",
+      "name": "Zeolite_Sieve_Saturation",
+      "type": "FailureMode",
+      "description": "Molecular sieve beds saturated with moisture, failing to scrub Nitrogen."
+    },
+    {
+      "id": "FM2",
+      "name": "Bleed_Air_Oil_Leak",
+      "type": "FailureMode",
+      "description": "Engine oil seal failure introducing contaminants (CO/Oil) into bleed air intake."
+    },
+    {
+      "id": "FM3",
+      "name": "Regulator_Stuck_Closed",
+      "type": "FailureMode",
+      "description": "Demand regulator fails to open, restricting flow to pilot mask."
+    },
+    {
+      "id": "FM4",
+      "name": "BOS_Leak",
+      "type": "FailureMode",
+      "description": "Backup Oxygen System (BOS) cylinder leak or depletion."
+    },
+    {
+      "id": "D1",
+      "name": "Low_O2_Concentration",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S1",
+        "operator": "<",
+        "threshold": 93.0
+      },
+      "criticality_level": 5
+    },
+    {
+      "id": "D2",
+      "name": "Toxic_Contaminant_Warning",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S3",
+        "operator": ">",
+        "threshold": 50.0
+      },
+      "criticality_level": 9
+    },
+    {
+      "id": "D3",
+      "name": "Low_Plenum_Pressure",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S2",
+        "operator": "<",
+        "threshold": 10.0
+      },
+      "criticality_level": 6
+    },
+    {
+      "id": "D4",
+      "name": "Hypoxia_Risk_Condition",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S1",
+        "operator": "<",
+        "threshold": 85.0
+      },
+      "criticality_level": 8
+    },
+    {
+      "id": "D5",
+      "name": "BOS_Depleted",
+      "type": "Discrepancy",
+      "gate_type": "OR",
+      "predicate": {
+        "signal_ref": "S4",
+        "operator": "<",
+        "threshold": 200.0
+      },
+      "criticality_level": 4
+    },
+    {
+      "id": "D6",
+      "name": "Total_Asphyxia_Risk",
+      "type": "Discrepancy",
+      "gate_type": "AND",
+      "description": "Triggers only if Main OBOGS Pressure is Low AND Backup (BOS) is empty.",
+      "predicate": {
+        "signal_ref": "S2",
+        "operator": "<",
+        "threshold": 5.0
+      },
+      "criticality_level": 10
+    }
+  ],
+  "edges": [
+    {
+      "from": "FM1",
+      "to": "D1",
+      "time_min_ms": 5000,
+      "time_max_ms": 30000,
+      "description": "Sieve saturation causes gradual drop in O2 concentration."
+    },
+    {
+      "from": "D1",
+      "to": "D4",
+      "time_min_ms": 10000,
+      "time_max_ms": 60000,
+      "description": "Continued operation at <93% leads to <85% (Hypoxia Zone)."
+    },
+    {
+      "from": "FM2",
+      "to": "D2",
+      "time_min_ms": 500,
+      "time_max_ms": 2000,
+      "description": "Contaminants reach sensor almost immediately via bleed air."
+    },
+    {
+      "from": "FM3",
+      "to": "D3",
+      "time_min_ms": 100,
+      "time_max_ms": 500,
+      "description": "Regulator blockage causes rapid pressure drop in the plenum."
+    },
+    {
+      "from": "FM4",
+      "to": "D5",
+      "time_min_ms": 0,
+      "time_max_ms": 1000,
+      "description": "Leak causes pressure sensor to read low."
+    },
+    {
+      "from": "D3",
+      "to": "D6",
+      "time_min_ms": 1000,
+      "time_max_ms": 5000,
+      "description": "Low Main Pressure contributes to Asphyxia (Input 1 of AND)."
+    },
+    {
+      "from": "D5",
+      "to": "D6",
+      "time_min_ms": 1000,
+      "time_max_ms": 5000,
+      "description": "Empty BOS contributes to Asphyxia (Input 2 of AND)."
+    }
+  ]
+}
