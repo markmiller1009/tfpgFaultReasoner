@@ -1,24 +1,23 @@
-Fault Model: .\f22_obogs_sample_model.json
-Test Data: .\f22_failure_scenario_1.json
+Fault Model: .\FaultModels\simple_pump_valve.json
+Test Data: .\FaultScenarios\pump_burnout.json
 --------------------------------------------------
-System Initialized. Nodes: 10
-Starting Simulation: "TEST_004_DOUBLE_FAILURE_ASPHYXIA"
+System Initialized. Nodes: 6
+Starting Simulation: "TEST_001_PUMP_BURNOUT"
 
 
 Using Criticality Threshold: 5
-FAULT INJECTED: Regulator_Stuck_Closed activated at time 2000ms.
-Node D3 (Low_Plenum_Pressure) activated at time 2200ms (sensor_plenum_pressure_psi: 4<10).
+FAULT INJECTED: Pump_Motor_Burnout activated at time 1000ms.
+Node D1 (Low_Current) activated at time 1010ms (sensor_motor_current_amps: 0<0.5).
 Robustness metrics updated based on new evidence.
 
 ==============================================================================
-[Time: 2200ms] SYSTEM DIAGNOSTIC REPORT
+[Time: 1010ms] SYSTEM DIAGNOSTIC REPORT
 ==============================================================================
 
 [TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
 ------------------------------------------------------------------------------
 SYSTEM PROGNOSIS:
-   - CRITICAL FAILURE ACTIVE (Target: D3).
-   - WARNING: Cascading Failure expected in 1000 ms (Target: D1).
+   - WARNING: Failure expected in 590 ms (Target: D4).
 
     [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
 
@@ -27,32 +26,29 @@ SYSTEM PROGNOSIS:
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
 ------------------------------------------------------------------------------
 POTENTIAL FAULTS:
-[?] Regulator_Stuck_Closed (FM3) [Confidence: 25%]
+[?] Pump_Motor_Burnout (FM1) [Confidence: 33.3333%]
     > Status: VERIFIED (Downstream Blockage)
     > Active Symptoms:
-      - D3 (Low_Plenum_Pressure) activated at 2200ms
+      - D1 (Low_Current) activated at 1010ms
     > Missing / Inactive Symptoms:
-      - D1 (Low_O2_Concentration) is PENDING (Propagation Delay)
-      - D4 (Hypoxia_Risk_Condition) is UNREACHABLE (Parent inactive)
-      - D6 (Total_Asphyxia_Risk) is UNREACHABLE (Parent D5 is inactive)
+      - D2 (Low_Pressure) is PENDING (Propagation Delay)
+      - D4 (No_Flow) is UNREACHABLE (Parent inactive)
 
 ------------------------------------------------------------------------------
 [TIER 3] UNEXPLAINED SYMPTOMS:
 ------------------------------------------------------------------------------
     - None
 
-Node D1 (Low_O2_Concentration) activated at time 4000ms (sensor_product_o2_conc_pct: 90<93).
 Robustness metrics updated based on new evidence.
 
 ==============================================================================
-[Time: 4000ms] SYSTEM DIAGNOSTIC REPORT
+[Time: 1100ms] SYSTEM DIAGNOSTIC REPORT
 ==============================================================================
 
 [TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
 ------------------------------------------------------------------------------
 SYSTEM PROGNOSIS:
-   - CRITICAL FAILURE ACTIVE (Target: D3).
-   - WARNING: Cascading Failure expected in 10000 ms (Target: D4).
+   - WARNING: Failure expected in 500 ms (Target: D4).
 
     [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
 
@@ -61,40 +57,30 @@ SYSTEM PROGNOSIS:
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
 ------------------------------------------------------------------------------
 POTENTIAL FAULTS:
-[?] Regulator_Stuck_Closed (FM3) [Confidence: 50%]
+[?] Pump_Motor_Burnout (FM1) [Confidence: 33.3333%]
     > Status: VERIFIED (Downstream Blockage)
     > Active Symptoms:
-      - D1 (Low_O2_Concentration) activated at 4000ms
-      - D3 (Low_Plenum_Pressure) activated at 2200ms
+      - D1 (Low_Current) activated at 1010ms
     > Missing / Inactive Symptoms:
-      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
-      - D6 (Total_Asphyxia_Risk) is UNREACHABLE (Parent D5 is inactive)
-
-[?] Zeolite_Sieve_Saturation (FM1) [Confidence: 50%]
-    > Status: VERIFIED (Propagating)
-    > Active Symptoms:
-      - D1 (Low_O2_Concentration) activated at 4000ms
-    > Missing / Inactive Symptoms:
-      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
+      - D2 (Low_Pressure) is MISSING (Should be active)
+      - D4 (No_Flow) is UNREACHABLE (Parent inactive)
 
 ------------------------------------------------------------------------------
 [TIER 3] UNEXPLAINED SYMPTOMS:
 ------------------------------------------------------------------------------
     - None
 
-FAULT INJECTED: BOS_Leak activated at time 6000ms.
-Node D5 (BOS_Depleted) activated at time 6500ms (sensor_bos_pressure_psi: 50<200).
+Node D2 (Low_Pressure) activated at time 1250ms (sensor_outlet_pressure_psi: 8<10).
 Robustness metrics updated based on new evidence.
 
 ==============================================================================
-[Time: 6500ms] SYSTEM DIAGNOSTIC REPORT
+[Time: 1250ms] SYSTEM DIAGNOSTIC REPORT
 ==============================================================================
 
 [TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
 ------------------------------------------------------------------------------
 SYSTEM PROGNOSIS:
-   - CRITICAL FAILURE ACTIVE (Target: D3).
-   - WARNING: Cascading Failure expected in 1000 ms (Target: D6).
+   - WARNING: Failure expected in 500 ms (Target: D4).
 
     [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
 
@@ -103,74 +89,69 @@ SYSTEM PROGNOSIS:
 [TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
 ------------------------------------------------------------------------------
 POTENTIAL FAULTS:
-[?] BOS_Leak (FM4) [Confidence: 50%]
+[?] Pump_Motor_Burnout (FM1) [Confidence: 66.6667%]
     > Status: VERIFIED (Propagating)
     > Active Symptoms:
-      - D5 (BOS_Depleted) activated at 6500ms
+      - D1 (Low_Current) activated at 1010ms
+      - D2 (Low_Pressure) activated at 1250ms
     > Missing / Inactive Symptoms:
-      - D6 (Total_Asphyxia_Risk) is PENDING (Propagation Delay)
-
-[?] Regulator_Stuck_Closed (FM3) [Confidence: 50%]
-    > Status: VERIFIED (Propagating)
-    > Active Symptoms:
-      - D1 (Low_O2_Concentration) activated at 4000ms
-      - D3 (Low_Plenum_Pressure) activated at 2200ms
-    > Missing / Inactive Symptoms:
-      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
-      - D6 (Total_Asphyxia_Risk) is PENDING (Propagation Delay)
-
-[?] Zeolite_Sieve_Saturation (FM1) [Confidence: 50%]
-    > Status: VERIFIED (Propagating)
-    > Active Symptoms:
-      - D1 (Low_O2_Concentration) activated at 4000ms
-    > Missing / Inactive Symptoms:
-      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
+      - D4 (No_Flow) is PENDING (Propagation Delay)
 
 ------------------------------------------------------------------------------
 [TIER 3] UNEXPLAINED SYMPTOMS:
 ------------------------------------------------------------------------------
     - None
 
-Node D6 (Total_Asphyxia_Risk) activated at time 7500ms (sensor_plenum_pressure_psi: 2<5).
 Robustness metrics updated based on new evidence.
 
 ==============================================================================
-[Time: 7500ms] SYSTEM DIAGNOSTIC REPORT
+[Time: 1500ms] SYSTEM DIAGNOSTIC REPORT
 ==============================================================================
 
 [TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
 ------------------------------------------------------------------------------
 SYSTEM PROGNOSIS:
-   - CRITICAL FAILURE ACTIVE (Target: D6).
-   - WARNING: Cascading Failure expected in 6500 ms (Target: D4).
+   - WARNING: Failure expected in 250 ms (Target: D4).
+
+    [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
+
+
+------------------------------------------------------------------------------
+[TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
+------------------------------------------------------------------------------
+POTENTIAL FAULTS:
+[?] Pump_Motor_Burnout (FM1) [Confidence: 66.6667%]
+    > Status: VERIFIED (Propagating)
+    > Active Symptoms:
+      - D1 (Low_Current) activated at 1010ms
+      - D2 (Low_Pressure) activated at 1250ms
+    > Missing / Inactive Symptoms:
+      - D4 (No_Flow) is PENDING (Propagation Delay)
+
+------------------------------------------------------------------------------
+[TIER 3] UNEXPLAINED SYMPTOMS:
+------------------------------------------------------------------------------
+    - None
+
+Node D4 (No_Flow) activated at time 1800ms (sensor_flow_rate_gpm: 0<1).
+Robustness metrics updated based on new evidence.
+
+==============================================================================
+[Time: 1800ms] SYSTEM DIAGNOSTIC REPORT
+==============================================================================
+
+[TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
+------------------------------------------------------------------------------
+SYSTEM PROGNOSIS:
+   - CRITICAL FAILURE ACTIVE (Target: D4).
 
 FAULTS DETECTED:
-    1. BOS_Leak (FM4)
+    1. Pump_Motor_Burnout (FM1)
        > Status: VERIFIED
        > Active Symptoms:
-         - D5 (BOS_Depleted) activated at 6500ms
-         - D6 (Total_Asphyxia_Risk) activated at 7500ms
-
-------------------------------------------------------------------------------
-[TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
-------------------------------------------------------------------------------
-POTENTIAL FAULTS:
-[?] Regulator_Stuck_Closed (FM3) [Confidence: 75%]
-    > Status: VERIFIED (Propagating)
-    > Active Symptoms:
-      - D1 (Low_O2_Concentration) activated at 4000ms
-      - D3 (Low_Plenum_Pressure) activated at 2200ms
-      - D6 (Total_Asphyxia_Risk) activated at 7500ms
-    > Missing / Inactive Symptoms:
-      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
-
-[?] Zeolite_Sieve_Saturation (FM1) [Confidence: 50%]
-    > Status: VERIFIED (Propagating)
-    > Active Symptoms:
-      - D1 (Low_O2_Concentration) activated at 4000ms
-    > Missing / Inactive Symptoms:
-      - D4 (Hypoxia_Risk_Condition) is PENDING (Propagation Delay)
-
+         - D1 (Low_Current) activated at 1010ms
+         - D2 (Low_Pressure) activated at 1250ms
+         - D4 (No_Flow) activated at 1800ms
 ------------------------------------------------------------------------------
 [TIER 3] UNEXPLAINED SYMPTOMS:
 ------------------------------------------------------------------------------

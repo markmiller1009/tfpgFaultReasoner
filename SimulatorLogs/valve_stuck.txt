@@ -1,0 +1,65 @@
+Fault Model: .\FaultModels\simple_pump_valve.json
+Test Data: .\FaultScenarios\valve_stuck.json
+--------------------------------------------------
+System Initialized. Nodes: 6
+Starting Simulation: "TEST_002_VALVE_STUCK"
+
+
+Using Criticality Threshold: 5
+FAULT INJECTED: Valve_Stuck_Closed activated at time 2000ms.
+Node D3 (High_Pressure) activated at time 2150ms (sensor_outlet_pressure_psi: 120>100).
+Robustness metrics updated based on new evidence.
+
+==============================================================================
+[Time: 2150ms] SYSTEM DIAGNOSTIC REPORT
+==============================================================================
+
+[TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
+------------------------------------------------------------------------------
+SYSTEM PROGNOSIS:
+   - WARNING: Failure expected in 200 ms (Target: D4).
+
+    [!] WARNING: Active symptoms explained only by low-confidence hypotheses.
+
+
+------------------------------------------------------------------------------
+[TIER 2] PARTIAL HYPOTHESES (Confidence: < 100%)
+------------------------------------------------------------------------------
+POTENTIAL FAULTS:
+[?] Valve_Stuck_Closed (FM2) [Confidence: 50%]
+    > Status: VERIFIED (Propagating)
+    > Active Symptoms:
+      - D3 (High_Pressure) activated at 2150ms
+    > Missing / Inactive Symptoms:
+      - D4 (No_Flow) is PENDING (Propagation Delay)
+
+------------------------------------------------------------------------------
+[TIER 3] UNEXPLAINED SYMPTOMS:
+------------------------------------------------------------------------------
+    - None
+
+Node D4 (No_Flow) activated at time 2600ms (sensor_flow_rate_gpm: 0<1).
+Robustness metrics updated based on new evidence.
+
+==============================================================================
+[Time: 2600ms] SYSTEM DIAGNOSTIC REPORT
+==============================================================================
+
+[TIER 1] PRIMARY DIAGNOSIS (Confidence: 100%)
+------------------------------------------------------------------------------
+SYSTEM PROGNOSIS:
+   - CRITICAL FAILURE ACTIVE (Target: D4).
+
+FAULTS DETECTED:
+    1. Valve_Stuck_Closed (FM2)
+       > Status: VERIFIED
+       > Active Symptoms:
+         - D3 (High_Pressure) activated at 2150ms
+         - D4 (No_Flow) activated at 2600ms
+------------------------------------------------------------------------------
+[TIER 3] UNEXPLAINED SYMPTOMS:
+------------------------------------------------------------------------------
+    - None
+
+
+Simulation Complete.
